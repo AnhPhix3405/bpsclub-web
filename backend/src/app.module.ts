@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DatabaseModule } from './database/database.module';
 import { EventsModule } from './events/events.module';
+import { PartnersModule } from './partners/partners.module';
 @Module({
   imports: [
     // Config module để đọc .env
@@ -27,6 +28,7 @@ import { EventsModule } from './events/events.module';
     
     DatabaseModule,
     EventsModule,
+    PartnersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

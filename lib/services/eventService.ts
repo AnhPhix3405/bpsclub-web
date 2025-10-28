@@ -1,3 +1,5 @@
+import { API_BASE_URL, buildEndpoint } from '@/config/enpoints';
+
 interface Event {
   id: number;
   title: string;
@@ -26,22 +28,13 @@ class EventService {
   private readonly baseURL: string;
 
   constructor() {
-    this.baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+    this.baseURL = API_BASE_URL;
   }
 
   async getAllEvents(params?: GetAllEventsParams): Promise<Event[]> {
     try {
-      const queryParams = new URLSearchParams();
-      
-      if (params?.sort) {
-        queryParams.append('sort', params.sort);
-      }
-      
-      if (params?.limit) {
-        queryParams.append('limit', params.limit.toString());
-      }
-
-      const url = `${this.baseURL}/events/get-all${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      const endpoint = buildEndpoint.events.getAll(params);
+      const url = `${this.baseURL}${endpoint}`;
       
       const response = await fetch(url, {
         method: 'GET',

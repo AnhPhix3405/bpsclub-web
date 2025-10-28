@@ -17,15 +17,16 @@ import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { useEffect, useState, useMemo } from "react";
 import type { Event } from "@/lib/services/eventService";
-import type { Partner } from "@/app/api/partners/types";
+import type { Partner } from "@/lib/services/partnerService";
 import { eventService } from "@/lib/services/eventService";
+import { partnerService } from "@/lib/services/partnerService";
 import JoinPopup from "@/components/join-popup";
 import { ParticlesBackground } from "@/components/particles-background";
 
 // Define types for data structures
 interface IntroFeature {
   icon: LucideIcon;
-  title: string;
+  title: string;  
   description: string;
 }
 
@@ -98,15 +99,13 @@ export default function Home() {
           id: -1,
           name: "",
           logo: "/placeholder.svg",
-          type: "business" as any,
+          type: "business" as const,
           description: "",
-          website: null,
-          email: null,
-          phone: null,
-          address: null,
-          achievements: [],
-          collaboration: [],
-          status: "active" as any,
+          website: "",
+          email: "",
+          phone: "",
+          address: "",
+          status: "active" as const,
           created_at: "",
           updated_at: "",
         }
@@ -138,14 +137,14 @@ export default function Home() {
     fetchEvents();
   }, []);
 
-  // Fetch partners logos for marquee
+  // Fetch partners logos for marquee using partnerService
   useEffect(() => {
     const fetchPartners = async () => {
       try {
-        const res = await fetch("/api/partners");
-        const data = await res.json();
-        setPartners(Array.isArray(data?.data) ? data.data : []);
-      } catch (e) {
+        const data = await partnerService.getAllPartners();
+        setPartners(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error('Error fetching partners:', error);
         setPartners([]);
       }
     };
