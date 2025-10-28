@@ -469,7 +469,7 @@ export default function Home() {
                           : "/" + p.logo
                       }
                       alt={p.name}
-                      width={140}
+                      width={140} 
                       height={60}
                       className="object-contain transition-all"
                       sizes="140px"
