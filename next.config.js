@@ -17,7 +17,7 @@ const nextConfig = {
     return config;
   },
   images: {
-    domains: ['example.com', 'res.cloudinary.com'],
+    domains: ['example.com', 'res.cloudinary.com', 'uba.edu.vn'],
   },
 };
 

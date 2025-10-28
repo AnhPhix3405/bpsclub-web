@@ -16,8 +16,9 @@ import {
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { useEffect, useState, useMemo } from "react";
-import type { Event } from "@/app/api/events/types";
+import type { Event } from "@/lib/services/eventService";
 import type { Partner } from "@/app/api/partners/types";
+import { eventService } from "@/lib/services/eventService";
 import JoinPopup from "@/components/join-popup";
 import { ParticlesBackground } from "@/components/particles-background";
 
@@ -118,18 +119,17 @@ export default function Home() {
   const categories = ["all", "Workshop", "Hackathon", "Seminar", "Community"];
 
   useEffect(() => {
-    // Fetch top 3 events by views from API
+    // Fetch top 3 events by views from API using eventService
     const fetchEvents = async () => {
       try {
         setLoadingEvents(true);
-        const res = await fetch("/api/events?sort=views_desc&limit=3");
-        const data = await res.json();
-        if (data && data.data) {
-          setFeaturedEvents(data.data);
-        } else {
-          setFeaturedEvents([]);
-        }
-      } catch {
+        const data = await eventService.getAllEvents({
+          sort: 'views_desc',
+          limit: 3
+        });
+        setFeaturedEvents(data);
+      } catch (error) {
+        console.error('Error fetching events:', error);
         setErrorEvents("Unable to load latest events");
       } finally {
         setLoadingEvents(false);
@@ -347,7 +347,7 @@ export default function Home() {
                       />
                       <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       <div className="absolute top-4 left-4">
-                        <span className="px-3 py-1 text-xs font-medium bg-[#004987] text-white rounded-full">
+                        <span className="px-3 py-1 text-xs font-medium bg-[rgb(0,73,135)] text-white rounded-full">
                           {activity.category}
                         </span>
                       </div>
