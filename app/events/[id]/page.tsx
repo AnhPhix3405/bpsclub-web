@@ -1,7 +1,7 @@
 "use client";
 
 import ReactMarkdown from "react-markdown";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -18,12 +18,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import {
-  EventResponse,
-  ErrorResponse,
-  Event,
-  EventScheduleItem,
-} from "@/app/api/events/types";
+import { eventService, Event, EventSchedule } from "@/lib/services/eventService";
 
 function formatDate(dateString?: string) {
   if (!dateString) return "";
@@ -59,14 +54,13 @@ export default function EventDetailPage() {
 
   // Fetch related events from API (by category, exclude current event)
   useEffect(() => {
-    if (!event) return;
+    if (!event || !event.category) return;
     setIsChildLoading(true);
-    fetch(`/api/events?category=${encodeURIComponent(event.category)}`)
-      .then((res) => res.json())
+    eventService.getAllEvents({ category: event.category.name })
       .then((data) => {
-        if (data && Array.isArray(data.data)) {
+        if (data && Array.isArray(data)) {
           // Exclude the current event itself
-          setChildEvents(data.data.filter((e: Event) => e.id !== event.id));
+          setChildEvents(data.filter((e: Event) => e.id !== event.id));
         } else {
           setChildEvents([]);
         }
@@ -87,16 +81,9 @@ export default function EventDetailPage() {
       try {
         setIsLoading(true);
         setError(null);
-        // Fetch by id
-        const response = await fetch(`/api/events/${eventId}`);
-
-        if (response.ok) {
-          const result: EventResponse = await response.json();
-          setEvent(result.data || null);
-        } else {
-          const result: ErrorResponse = await response.json();
-          throw new Error(result.error || "Failed to fetch event data");
-        }
+        // Fetch by id using eventService
+        const eventData = await eventService.getEventById(parseInt(eventId));
+        setEvent(eventData || null);
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
         toast.error("Failed to load event data");
@@ -182,7 +169,7 @@ export default function EventDetailPage() {
                   {event.status === "upcoming" ? "Upcoming" : "Ended"}
                 </span>
                 <span className="px-3 py-1 text-sm font-medium bg-blue-100 text-blue-800 rounded-full">
-                  {event.category}
+                  {event.category?.name || 'Uncategorized'}
                 </span>
               </div>
 
@@ -196,14 +183,14 @@ export default function EventDetailPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8 }}
               >
-                {event.schedule && event.schedule.length > 0 && (
+                {event.schedules && event.schedules.length > 0 && (
                   <>
                     <h2 className="text-2xl font-bold text-[#004987] mt-12 mb-6">
                       Schedule
                     </h2>
                     <div className="space-y-4">
-                      {event.schedule.map(
-                        (item: EventScheduleItem, index: number) => (
+                      {event.schedules.map(
+                        (item: EventSchedule, index: number) => (
                           <div
                             key={index}
                             className="flex gap-4 p-4 bg-gray-50 rounded-lg"
@@ -248,8 +235,8 @@ export default function EventDetailPage() {
                 </div>
 
                 <div className="flex gap-4">
-                  {event.registrationLink && (
-                    <Link href={event.registrationLink}>
+                  {event.registration_link && (
+                    <Link href={event.registration_link}>
                       <Button
                         size="lg"
                         className="bg-white text-[#004987] hover:bg-gray-100"
@@ -297,17 +284,17 @@ export default function EventDetailPage() {
                   Event introduction
                 </h2>
                 <div className="prose max-w-none">
-                  <ReactMarkdown>{event.notionContent}</ReactMarkdown>
+                  <ReactMarkdown>{event.notion_content}</ReactMarkdown>
                 </div>
 
-                {event.schedule && event.schedule.length > 0 && (
+                {event.schedules && event.schedules.length > 0 && (
                   <>
                     <h2 className="text-2xl font-bold text-[#004987] mt-12 mb-6">
                       Lịch trình
                     </h2>
                     <div className="space-y-4">
-                      {event.schedule.map(
-                        (item: EventScheduleItem, index: number) => (
+                      {event.schedules.map(
+                        (item: EventSchedule, index: number) => (
                           <div
                             key={index}
                             className="flex gap-4 p-4 bg-gray-50 rounded-lg"
@@ -367,12 +354,12 @@ export default function EventDetailPage() {
                       <p className="text-sm font-medium text-gray-600">
                         Category
                       </p>
-                      <p className="text-gray-900">{event.category}</p>
+                      <p className="text-gray-900">{event.category?.name || 'Uncategorized'}</p>
                     </div>
                   </div>
                   <div className="mt-6">
-                    {event.registrationLink && (
-                      <Link href={event.registrationLink}>
+                    {event.registration_link && (
+                      <Link href={event.registration_link}>
                         <Button className="w-full bg-[#004987] text-white hover:bg-[#003d6d]">
                           Đăng ký tham gia
                           <ChevronRight className="ml-2 h-4 w-4" />
@@ -421,7 +408,7 @@ export default function EventDetailPage() {
                     <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     <div className="absolute top-4 left-4">
                       <span className="px-3 py-1 text-xs font-medium bg-[#004987] text-white rounded-full">
-                        {event.category}
+                        {event.category?.name || 'Uncategorized'}
                       </span>
                     </div>
                   </div>

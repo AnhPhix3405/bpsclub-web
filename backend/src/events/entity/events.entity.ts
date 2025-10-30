@@ -4,17 +4,20 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
+import { EventCategory as EventCategoryEntity } from './event_categories.entity';
 
 @Entity('events')
 export class Event {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255, nullable: false })
   title: string;
 
-  @Column({ type: 'date' })
+  @Column({ type: 'date', nullable: false })
   date: string;
 
   @Column({ type: 'time', nullable: true })
@@ -28,9 +31,6 @@ export class Event {
 
   @Column({ type: 'text', nullable: true })
   image?: string;
-
-  @Column({ type: 'varchar', length: 100 })
-  category: string;
 
   @Column({ type: 'integer', default: 0 })
   views: number;
@@ -55,6 +55,16 @@ export class Event {
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  @Column({ type: 'integer', nullable: true })
+  category_id?: number;
+
+  // Relations
+  @ManyToOne(() => EventCategoryEntity, {
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'category_id' })
+  category?: EventCategoryEntity;
 }
 
 export enum EventCategory {

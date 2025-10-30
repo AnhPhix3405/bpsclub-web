@@ -1,49 +1,77 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Event } from './entity/events.entity';
+/* eslint-disable prettier/prettier */
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { EventsRepository } from './events.repository';
 
 @Injectable()
 export class EventsService {
   constructor(
-    @InjectRepository(Event)
-    private readonly eventRepository: Repository<Event>,
+    private readonly eventsRepository: EventsRepository,
   ) {}
 
-  async getAllEvents(sort?: string, limit?: number): Promise<Event[]> {
-    const queryBuilder = this.eventRepository.createQueryBuilder('event');
+  async getAllEvents(
+    sort?: string,
+    limit?: number,
+    category?: string,
+    search?: string,
+  ): Promise<any[]> {
+    return await this.eventsRepository.findAllEvents(sort, limit, category, search);
+  }
 
-    // Handle sorting
-    if (sort) {
-      const [field, order] = sort.split('_');
-      const orderDirection = order?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
-      
-      // Validate field exists in entity
-      const allowedFields = [
-        'views',
-        'likes',
-        'comments',
-        'created_at',
-        'updated_at',
-        'date',
-        'title',
-      ];
-      if (allowedFields.includes(field)) {
-        queryBuilder.orderBy(`event.${field}`, orderDirection);
-      } else {
-        // Default sort by created_at DESC if invalid field
-        queryBuilder.orderBy('event.created_at', 'DESC');
-      }
-    } else {
-      // Default sort by created_at DESC
-      queryBuilder.orderBy('event.created_at', 'DESC');
+  async getEventById(id: number): Promise<any> {
+    // Find the event with category relation
+    const event = await this.eventsRepository.findEventById(id);
+    
+    if (!event) {
+      throw new NotFoundException(`Event with ID ${id} not found`);
     }
 
-    // Handle limit
-    if (limit && limit > 0) {
-      queryBuilder.limit(limit);
-    }
+    // Get schedules and speakers
+    const [schedules, speakers] = await Promise.all([
+      this.eventsRepository.findEventSchedulesByEventId(id),
+      this.eventsRepository.findEventSpeakersByEventId(id),
+    ]);
 
-    return await queryBuilder.getMany();
+    return {
+      ...event,
+      schedules: schedules,
+      speakers: speakers,
+    };
+  }
+
+  // Additional service methods using repository
+  async getAllCategories(): Promise<any[]> {
+    return await this.eventsRepository.findAllCategories();
+  }
+
+  async getCategoryById(id: number): Promise<any> {
+    const category = await this.eventsRepository.findCategoryById(id);
+    if (!category) {
+      throw new NotFoundException(`Category with ID ${id} not found`);
+    }
+    return category;
+  }
+
+  async incrementEventViews(id: number): Promise<void> {
+    const event = await this.eventsRepository.findEventById(id);
+    if (!event) {
+      throw new NotFoundException(`Event with ID ${id} not found`);
+    }
+    await this.eventsRepository.incrementViews(id);
+  }
+
+  async incrementEventLikes(id: number): Promise<void> {
+    const event = await this.eventsRepository.findEventById(id);
+    if (!event) {
+      throw new NotFoundException(`Event with ID ${id} not found`);
+    }
+    await this.eventsRepository.incrementLikes(id);
+  }
+
+  async incrementEventComments(id: number): Promise<void> {
+    const event = await this.eventsRepository.findEventById(id);
+    if (!event) {
+      throw new NotFoundException(`Event with ID ${id} not found`);
+    }
+    await this.eventsRepository.incrementComments(id);
   }
 }

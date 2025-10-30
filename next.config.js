@@ -17,7 +17,28 @@ const nextConfig = {
     return config;
   },
   images: {
-    domains: ['example.com', 'res.cloudinary.com', 'uba.edu.vn','www.bpsclub.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'example.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'uba.edu.vn',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.bpsclub.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'us1.discourse-cdn.com',
+      },
+    ],
   },
 };
 

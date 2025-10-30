@@ -21,8 +21,9 @@ import {
 } from "@/components/ui/animated-section";
 import { toast } from "sonner";
 
-// Import Event types from API types
-import { Event, EventListResponse } from "@/app/api/events/types";
+// Import Event types and service
+import type { Event } from "@/lib/services/eventService";
+import { eventService } from "@/lib/services/eventService";
 
 // Helper: format date as dd/MM/yyyy
 function formatDate(dateString?: string) {
@@ -48,25 +49,17 @@ export default function EventsPage() {
     threshold: 0.1,
   });
 
-  // Fetch events data
+  // Fetch events data using eventService
   useEffect(() => {
     const fetchEvents = async () => {
       try {
         setIsLoading(true);
         setError(null);
-        const response = await fetch(
-          `/api/events?category=${
-            selectedCategory !== "all" ? selectedCategory : ""
-          }&search=${searchQuery}`
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch events data");
-        }
-        const data: EventListResponse = await response.json();
-        if (data.error) {
-          throw new Error(data.error);
-        }
-        setEventData(data.data || []);
+        const data = await eventService.getAllEvents({
+          category: selectedCategory !== "all" ? selectedCategory : "",
+          search: searchQuery,
+        });
+        setEventData(data || []);
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
         toast.error("Failed to load events data");
@@ -255,7 +248,7 @@ export default function EventsPage() {
                     <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     <div className="absolute top-4 left-4">
                       <span className="px-3 py-1 text-xs font-medium bg-[#004987] text-white rounded-full">
-                        {event.category}
+                        {/* {event.category} */}
                       </span>
                     </div>
                   </div>
