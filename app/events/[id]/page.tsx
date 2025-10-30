@@ -160,11 +160,10 @@ export default function EventDetailPage() {
             >
               <div className="flex items-center gap-2 mb-4">
                 <span
-                  className={`px-3 py-1 text-sm font-medium rounded-full ${
-                    event.status === "upcoming"
+                  className={`px-3 py-1 text-sm font-medium rounded-full ${event.status === "upcoming"
                       ? "bg-green-100 text-green-800"
                       : "bg-gray-100 text-gray-800"
-                  }`}
+                    }`}
                 >
                   {event.status === "upcoming" ? "Upcoming" : "Ended"}
                 </span>
@@ -199,6 +198,9 @@ export default function EventDetailPage() {
                               <span className="text-sm font-medium text-[#004987]">
                                 {item.time}
                               </span>
+                              <div className="text-xs text-gray-500 mt-1">
+                                {formatDate(item.date)}
+                              </div>
                             </div>
                             <div>
                               <h3 className="font-medium text-gray-900">
@@ -303,6 +305,9 @@ export default function EventDetailPage() {
                               <span className="text-sm font-medium text-[#004987]">
                                 {item.time}
                               </span>
+                              <div className="text-xs text-gray-500 mt-1">
+                                {formatDate(item.date)}
+                              </div>
                             </div>
                             <div>
                               <h3 className="font-medium text-gray-900">
@@ -398,8 +403,8 @@ export default function EventDetailPage() {
                           ? "/placeholder.svg"
                           : event.image.startsWith("http") ||
                             event.image.startsWith("/")
-                          ? event.image
-                          : "/" + event.image
+                            ? event.image
+                            : "/" + event.image
                       }
                       alt={event.title}
                       fill

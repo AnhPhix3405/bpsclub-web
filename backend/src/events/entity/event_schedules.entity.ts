@@ -15,14 +15,17 @@ export class EventSchedule {
   @Column({ type: 'integer' })
   event_id: number;
 
-  @Column({ type: 'varchar', length: 50 })
-  time: string;
+  @Column({ type: 'time', nullable: false })
+  time?: string;
 
   @Column({ type: 'varchar', length: 255 })
   title: string;
 
   @Column({ type: 'text', nullable: true })
   description?: string;
+
+  @Column({ type: 'date', nullable: true })
+  date?: string;
 
   // Relations
   @ManyToOne(() => Event, {

@@ -11,6 +11,7 @@ interface EventSchedule {
   time: string;
   title: string;
   description?: string;
+  date?: string;
 }
 
 interface EventSpeaker {

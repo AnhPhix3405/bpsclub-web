@@ -319,7 +319,7 @@ export default function Home() {
                 .filter(
                   (ev) =>
                     selectedCategory === "all" ||
-                    ev.category === selectedCategory
+                    ev.category?.name === selectedCategory
                 )
                 .map((activity, index) => (
                   <motion.div
@@ -347,7 +347,7 @@ export default function Home() {
                       <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       <div className="absolute top-4 left-4">
                         <span className="px-3 py-1 text-xs font-medium bg-[rgb(0,73,135)] text-white rounded-full">
-                          {activity.category}
+                          {activity.category?.name}
                         </span>
                       </div>
                     </div>
