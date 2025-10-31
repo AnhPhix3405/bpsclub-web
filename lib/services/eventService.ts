@@ -29,6 +29,7 @@ interface Event {
   date: string;
   time?: string;
   location?: string;
+  specific_location?: string;
   excerpt?: string;
   image?: string;
   views: number;
@@ -37,6 +38,7 @@ interface Event {
   status?: string;
   registration_link?: string;
   notion_content?: string;
+  is_visible?: boolean;
   created_at: string;
   updated_at: string;
   category_id?: number;
@@ -119,6 +121,30 @@ class EventService {
       return data;
     } catch (error) {
       console.error('Error fetching event:', error);
+      throw error;
+    }
+  }
+
+  async updateEvent(id: number, eventData: Partial<Event>): Promise<Event> {
+    try {
+      const url = `${this.baseURL}/events/${id}`;
+      
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(eventData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data: Event = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error updating event:', error);
       throw error;
     }
   }

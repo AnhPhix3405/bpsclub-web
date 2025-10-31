@@ -1,6 +1,7 @@
 "use client";
 
 import ReactMarkdown from "react-markdown";
+import parse from "html-react-parser";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -31,6 +32,38 @@ function formatTime(timeString?: string) {
   if (!timeString || timeString === "00:00") return "";
   // Nếu timeString là HH:mm:ss hoặc HH:mm, chỉ lấy HH:mm
   return timeString.slice(0, 5);
+}
+
+// Helper: detect if content is HTML or Markdown
+function isHTML(content: string): boolean {
+  // Check for HTML tags
+  const htmlTagPattern = /<[a-z][\s\S]*>/i;
+  return htmlTagPattern.test(content);
+}
+
+// Helper: render content based on type (HTML or Markdown)
+function renderContent(content: string) {
+  if (!content) {
+    return <p className="text-gray-500">Không có nội dung</p>;
+  }
+
+  // If content contains HTML tags, use html-react-parser
+  if (isHTML(content)) {
+    console.log('Rendering HTML content:', content.substring(0, 100) + '...');
+    return (
+      <div className="prose max-w-none prose-headings:text-[#004987] prose-links:text-[#004987] prose-strong:text-gray-900 prose-p:text-gray-700 prose-ul:text-gray-700 prose-ol:text-gray-700">
+        {parse(content)}
+      </div>
+    );
+  }
+
+  // Otherwise, use ReactMarkdown for Markdown content
+  console.log('Rendering Markdown content:', content.substring(0, 100) + '...');
+  return (
+    <div className="prose max-w-none prose-headings:text-[#004987] prose-links:text-[#004987] prose-strong:text-gray-900 prose-p:text-gray-700 prose-ul:text-gray-700 prose-ol:text-gray-700">
+      <ReactMarkdown>{content}</ReactMarkdown>
+    </div>
+  );
 }
 
 export default function EventDetailPage() {
@@ -282,12 +315,18 @@ export default function EventDetailPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8 }}
               >
-                <h2 className="text-2xl font-bold text-[#004987] mb-6">
-                  Event introduction
-                </h2>
-                <div className="prose max-w-none">
-                  <ReactMarkdown>{event.notion_content}</ReactMarkdown>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-[#004987]">
+                    Event introduction
+                  </h2>
+                  {/* Debug info - remove in production */}
+                  {event.notion_content && (
+                    <span className="text-xs px-2 py-1 bg-gray-100 rounded text-gray-600">
+                      {isHTML(event.notion_content) ? 'HTML Content' : 'Markdown Content'}
+                    </span>
+                  )}
                 </div>
+                {renderContent(event.notion_content || "")}
 
                 {event.schedules && event.schedules.length > 0 && (
                   <>
