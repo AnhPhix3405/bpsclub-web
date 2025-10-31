@@ -8,6 +8,8 @@ import { AppService } from './app.service';
 import { DatabaseModule } from './database/database.module';
 import { EventsModule } from './events/events.module';
 import { PartnersModule } from './partners/partners.module';
+import { AdminsModule } from './admins/admins.module';
+import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [
     // Config module để đọc .env
@@ -42,6 +44,8 @@ import { PartnersModule } from './partners/partners.module';
     DatabaseModule,
     EventsModule,
     PartnersModule,
+    AdminsModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [
