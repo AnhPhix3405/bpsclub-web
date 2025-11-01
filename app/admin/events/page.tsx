@@ -17,10 +17,13 @@ import {
   ChevronLeft,
   ChevronRight,
   Calendar,
-  MapPin
+  MapPin,
+  Router
 } from "lucide-react";
 import { useEvent } from "@/hooks/useEvent";
 import Link from "next/link";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function AdminEventsPage() {
   // Use custom hook for event logic
@@ -77,7 +80,7 @@ export default function AdminEventsPage() {
   const handleSearch = (value: string) => {
     setSearchQuery(value);
   };
-
+  const router = useRouter();
   return (
     <div className="flex min-h-screen bg-gray-50">
       <AdminSidebar />
@@ -148,7 +151,10 @@ export default function AdminEventsPage() {
               </Select>
 
               {/* Create Button */}
-              <Button className="bg-[#004987] hover:bg-[#003366]">
+              <Button className="bg-[#004987] hover:bg-[#003366]"
+              onClick={()=> {router.push("events/create")}}
+              >
+
                 <Plus className="w-4 h-4 mr-2" />
                 Tạo sự kiện mới
               </Button>
@@ -219,9 +225,19 @@ export default function AdminEventsPage() {
                       {/* Event Info */}
                       <div className="flex-1">
                         <div className="flex items-start gap-4">
-                          {/* Event Image/Icon */}
-                          <div className="w-16 h-16 bg-[#004987] rounded-lg flex items-center justify-center flex-shrink-0">
-                            <Calendar className="w-8 h-8 text-white" />
+                          {/* Event Image */}
+                          <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                            {event.image ? (
+                              <Image
+                                src={event.image}
+                                alt={event.title}
+                                width={64}
+                                height={64}
+                                className="object-cover w-full h-full"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gray-200" />
+                            )}
                           </div>
                           
                           {/* Event Details */}
