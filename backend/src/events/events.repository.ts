@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,7 +9,9 @@ import { Event } from './entity/events.entity';
 import { EventCategory } from './entity/event_categories.entity';
 import { EventSchedule } from './entity/event_schedules.entity';
 import { EventSpeaker } from './entity/event_speakers.entity';
+import { CreateEventDto } from './interface/create-event.interface' // Import the CreateEventData DTO
 
+// Extend the Event type to include optional speakers and schedules
 @Injectable()
 export class EventsRepository {
   constructor(
@@ -18,7 +23,7 @@ export class EventsRepository {
     private readonly eventScheduleRepository: Repository<EventSchedule>,
     @InjectRepository(EventSpeaker)
     private readonly eventSpeakerRepository: Repository<EventSpeaker>,
-  ) {}
+  ) { }
 
   async findAllEvents(
     sort?: string,
@@ -47,7 +52,7 @@ export class EventsRepository {
     if (sort) {
       const [field, order] = sort.split('_');
       const orderDirection = order?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
-      
+
       // Validate field exists in entity
       const allowedFields = [
         'views',
@@ -78,21 +83,21 @@ export class EventsRepository {
   }
 
   async findEventById(id: number): Promise<Event | null> {
-    return await this.eventRepository.findOne({ 
+    return await this.eventRepository.findOne({
       where: { id },
       relations: ['category']
     });
   }
 
   async findEventSchedulesByEventId(eventId: number): Promise<EventSchedule[]> {
-    return await this.eventScheduleRepository.find({ 
+    return await this.eventScheduleRepository.find({
       where: { event_id: eventId },
       order: { time: 'ASC' }
     });
   }
 
   async findEventSpeakersByEventId(eventId: number): Promise<EventSpeaker[]> {
-    return await this.eventSpeakerRepository.find({ 
+    return await this.eventSpeakerRepository.find({
       where: { event_id: eventId }
     });
   }
@@ -104,19 +109,27 @@ export class EventsRepository {
   }
 
   async findCategoryById(id: number): Promise<EventCategory | null> {
-    return await this.eventCategoryRepository.findOne({ 
+    return await this.eventCategoryRepository.findOne({
       where: { id }
     });
   }
 
   async findCategoryByName(name: string): Promise<EventCategory | null> {
-    return await this.eventCategoryRepository.findOne({ 
+    return await this.eventCategoryRepository.findOne({
       where: { name }
     });
   }
 
-  async createEvent(eventData: Partial<Event>): Promise<Event> {
-    const event = this.eventRepository.create(eventData);
+  async createEvent(dto: CreateEventDto): Promise<Event> {
+    const schedules = typeof dto.schedules === 'string' ? JSON.parse(dto.schedules) : (dto.schedules ?? []);
+    const speakers = typeof dto.speakers === 'string' ? JSON.parse(dto.speakers) : (dto.speakers ?? []);
+
+    const event = this.eventRepository.create({
+      ...dto,
+      schedules,
+      speakers,
+    });
+
     return await this.eventRepository.save(event);
   }
 

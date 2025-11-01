@@ -28,9 +28,7 @@ export class EventSchedule {
   date?: string;
 
   // Relations
-  @ManyToOne(() => Event, {
-    onDelete: 'CASCADE',
-  })
+  @ManyToOne(() => Event, (event) => event.schedules)
   @JoinColumn({ name: 'event_id' })
   event: Event;
 }

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { eventService, Event, EventCategory } from "@/lib/services/eventService";
 import { toast } from "sonner";
+import type { CreateEventData } from '@/common/interfaces/createEvent'
 
 interface UseEventParams {
   sort?: string;
@@ -37,6 +38,7 @@ interface UseEventReturn {
   fetchEvents: () => Promise<void>;
   refreshEvents: () => Promise<void>;
   handleDelete: (eventId: number) => Promise<void>;
+  createEvent: (eventData: CreateEventData) => Promise<void>;
 }
 
 const ITEMS_PER_PAGE = 10;
@@ -121,6 +123,24 @@ export const useEvent = (): UseEventReturn => {
     }
   }, [refreshEvents]);
 
+  // Create event function
+  const createEvent = useCallback(async (eventData: CreateEventData) => {
+    try {
+      console.log(eventData);
+      const response = await eventService.createEvent(eventData);
+
+      if (!response || response.status !== "success") {
+        throw new Error("Failed to create event");
+      }
+
+      toast.success("Sự kiện đã được tạo thành công");
+      await refreshEvents();
+    } catch (error) {
+      console.error("Error creating event:", error);
+      toast.error("Không thể tạo sự kiện. Vui lòng thử lại.");
+    }
+  }, [refreshEvents]);
+
   // Load data on component mount
   useEffect(() => {
     fetchEvents();
@@ -162,5 +182,6 @@ export const useEvent = (): UseEventReturn => {
     fetchEvents,
     refreshEvents,
     handleDelete,
+    createEvent,
   };
 };

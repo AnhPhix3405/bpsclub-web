@@ -6,8 +6,11 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { EventCategory as EventCategoryEntity } from './event_categories.entity';
+import { EventSchedule } from './event_schedules.entity';
+import { EventSpeaker } from './event_speakers.entity';
 
 @Entity('events')
 export class Event {
@@ -65,6 +68,12 @@ export class Event {
   })
   @JoinColumn({ name: 'category_id' })
   category?: EventCategoryEntity;
+
+  @OneToMany(() => EventSchedule, (schedule) => schedule.event, { cascade: true })
+  schedules: EventSchedule[];
+
+  @OneToMany(() => EventSpeaker, (speaker) => speaker.event, { cascade: true })
+  speakers: EventSpeaker[];
 }
 
 export enum EventCategory {

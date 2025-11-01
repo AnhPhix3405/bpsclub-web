@@ -1,24 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import {
-  Controller,
-  Get,
-  Query,
-  Param,
-  Post,
-  Body,
-  UploadedFile,
-  UseInterceptors,
-} from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { singleFileOptions } from '../middleware/multer.middleware';
+import { Controller, Get, Query, Param, Post, Body ,Req, UploadedFile, UseInterceptors} from '@nestjs/common';
 import { EventsService } from './events.service';
-import type { CreateEventData } from './events.service';
 import { Event } from './entity/events.entity';
 import { EventCategory } from './entity/event_categories.entity';
-
+import type { CreateEventDto } from './interface/create-event.interface';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { singleFileOptions } from 'src/middleware/multer.middleware';
 @Controller('events')
 export class EventsController {
-  constructor(private readonly eventsService: EventsService) {}
+  constructor(private readonly eventsService: EventsService) { }
 
   @Get('get-all')
   async getAllEvents(
@@ -79,7 +69,7 @@ export class EventsController {
   @Post('create')
   @UseInterceptors(FileInterceptor('image_file', singleFileOptions))
   async createEvent(
-    @Body() eventData: CreateEventData,
+    @Body() createEventDto: CreateEventDto,
     @UploadedFile()
     image_file: {
       path: string;
@@ -88,7 +78,8 @@ export class EventsController {
       mimetype: string;
     },
   ): Promise<any> {
-    const eventWithFile = { ...eventData, image_file };
+    const eventWithFile = { ...createEventDto, image_file };
+    console.log(eventWithFile);
     return await this.eventsService.createEvent(eventWithFile);
   }
 }
