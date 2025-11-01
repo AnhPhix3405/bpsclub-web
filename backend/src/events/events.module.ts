@@ -7,6 +7,8 @@ import { Event } from './entity/events.entity';
 import { EventCategory } from './entity/event_categories.entity';
 import { EventSchedule } from './entity/event_schedules.entity';
 import { EventSpeaker } from './entity/event_speakers.entity';
+import { UploadService } from '../upload/upload.service';
+import { CloudinaryConfig } from '../config/cloudinary.config';
 
 @Module({
   imports: [
@@ -18,7 +20,7 @@ import { EventSpeaker } from './entity/event_speakers.entity';
     ]),
   ],
   controllers: [EventsController],
-  providers: [EventsService, EventsRepository],
+  providers: [EventsService, EventsRepository, UploadService, CloudinaryConfig],
   exports: [EventsService, EventsRepository],
 })
 export class EventsModule {}

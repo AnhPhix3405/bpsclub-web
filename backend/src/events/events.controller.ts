@@ -1,6 +1,18 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import { Controller, Get, Query, Param, Post } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Query,
+  Param,
+  Post,
+  Body,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { singleFileOptions } from '../middleware/multer.middleware';
 import { EventsService } from './events.service';
+import type { CreateEventData } from './events.service';
 import { Event } from './entity/events.entity';
 import { EventCategory } from './entity/event_categories.entity';
 
@@ -62,5 +74,21 @@ export class EventsController {
     const eventId = parseInt(id, 10);
     await this.eventsService.incrementEventComments(eventId);
     return { message: 'Comments incremented successfully' };
+  }
+
+  @Post('create')
+  @UseInterceptors(FileInterceptor('image_file', singleFileOptions))
+  async createEvent(
+    @Body() eventData: CreateEventData,
+    @UploadedFile()
+    image_file: {
+      path: string;
+      originalname: string;
+      size: number;
+      mimetype: string;
+    },
+  ): Promise<any> {
+    const eventWithFile = { ...eventData, image_file };
+    return await this.eventsService.createEvent(eventWithFile);
   }
 }

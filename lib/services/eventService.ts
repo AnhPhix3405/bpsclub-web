@@ -148,6 +148,56 @@ class EventService {
       throw error;
     }
   }
+
+  async createEvent(eventData: Omit<Event, 'id' | 'created_at' | 'updated_at'> & { image_file?: File }): Promise<Event> {
+    try {
+      const url = `${this.baseURL}/events`;
+
+      const formData = new FormData();
+
+      // Append all fields to the form data
+      formData.append('title', eventData.title);
+      formData.append('date', eventData.date);
+      if (eventData.time) formData.append('time', eventData.time);
+      if (eventData.location) formData.append('location', eventData.location);
+      if (eventData.specific_location) formData.append('specific_location', eventData.specific_location);
+      if (eventData.excerpt) formData.append('excerpt', eventData.excerpt);
+      if (eventData.registration_link) formData.append('registration_link', eventData.registration_link);
+      if (eventData.notion_content) formData.append('notion_content', eventData.notion_content);
+      if (eventData.is_visible !== undefined) formData.append('is_visible', String(eventData.is_visible));
+      if (eventData.category_id) formData.append('category_id', String(eventData.category_id));
+
+      // Append schedules
+      if (eventData.schedules) {
+        formData.append('schedules', JSON.stringify(eventData.schedules));
+      }
+
+      // Append speakers
+      if (eventData.speakers) {
+        formData.append('speakers', JSON.stringify(eventData.speakers));
+      }
+
+      // Append image file if provided
+      if (eventData.image_file) {
+        formData.append('image_file', eventData.image_file);
+      }
+
+      const response = await fetch(url, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data: Event = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error creating event:', error);
+      throw error;
+    }
+  }
 }
 
 export const eventService = new EventService();
