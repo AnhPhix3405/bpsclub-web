@@ -26,6 +26,3 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .vercel
-
-
-/config/enpoints.ts
