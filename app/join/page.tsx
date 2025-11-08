@@ -578,66 +578,6 @@ export default function JoinPage() {
 
                   <FormField
                     control={form.control}
-                    name="division"
-                    render={({ field }) => (
-                      <FormItem className="space-y-3">
-                        <FormLabel>
-                          Which division do you want to join? *
-                        </FormLabel>
-                        <FormControl>
-                          <RadioGroup
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                            className="flex flex-col space-y-1"
-                          >
-                            <FormItem className="flex items-center space-x-3 space-y-0">
-                              <FormControl>
-                                <RadioGroupItem value="Technical Department" />
-                              </FormControl>
-                              <FormLabel className="font-normal">
-                                Technical Department
-                              </FormLabel>
-                            </FormItem>
-                            <FormItem className="flex items-center space-x-3 space-y-0">
-                              <FormControl>
-                                <RadioGroupItem value="Communications Department" />
-                              </FormControl>
-                              <FormLabel className="font-normal">
-                                Communications Department
-                              </FormLabel>
-                            </FormItem>
-
-                            <FormItem className="flex items-center space-x-3 space-y-0">
-                              <FormControl>
-                                <RadioGroupItem value="Logistics Department" />
-                              </FormControl>
-                              <FormLabel className="font-normal">
-                                Logistics Department
-                              </FormLabel>
-                            </FormItem>
-                            <FormItem className="flex items-center space-x-3 space-y-0">
-                              <FormControl>
-                                <RadioGroupItem value="Partnerships & Sponsorships Department" />
-                              </FormControl>
-                              <FormLabel className="font-normal">
-                                Partnerships & Sponsorships Department
-                              </FormLabel>
-                            </FormItem>
-                          </RadioGroup>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <div className="space-y-4">
-                  <h3 className="text-xl font-semibold text-[#004987]">
-                    Additional information
-                  </h3>
-
-                  <FormField
-                    control={form.control}
                     name="blockchain_area_ids"
                     render={() => (
                       <FormItem>
@@ -696,6 +636,66 @@ export default function JoinPage() {
                       </FormItem>
                     )}
                   />
+
+                  <FormField
+                    control={form.control}
+                    name="division"
+                    render={({ field }) => (
+                      <FormItem className="space-y-3">
+                        <FormLabel>
+                          Which division do you want to join? *
+                        </FormLabel>
+                        <FormControl>
+                          <RadioGroup
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            className="flex flex-col space-y-1"
+                          >
+                            <FormItem className="flex items-center space-x-3 space-y-0">
+                              <FormControl>
+                                <RadioGroupItem value="Technical Department" />
+                              </FormControl>
+                              <FormLabel className="font-normal">
+                                Technical Department
+                              </FormLabel>
+                            </FormItem>
+                            <FormItem className="flex items-center space-x-3 space-y-0">
+                              <FormControl>
+                                <RadioGroupItem value="Communications Department" />
+                              </FormControl>
+                              <FormLabel className="font-normal">
+                                Communications Department
+                              </FormLabel>
+                            </FormItem>
+
+                            <FormItem className="flex items-center space-x-3 space-y-0">
+                              <FormControl>
+                                <RadioGroupItem value="Logistics Department" />
+                              </FormControl>
+                              <FormLabel className="font-normal">
+                                Logistics Department
+                              </FormLabel>
+                            </FormItem>
+                            <FormItem className="flex items-center space-x-3 space-y-0">
+                              <FormControl>
+                                <RadioGroupItem value="Partnerships & Sponsorships Department" />
+                              </FormControl>
+                              <FormLabel className="font-normal">
+                                Partnerships & Sponsorships Department
+                              </FormLabel>
+                            </FormItem>
+                          </RadioGroup>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-xl font-semibold text-[#004987]">
+                    Additional information
+                  </h3>
 
                   <FormField
                     control={form.control}
