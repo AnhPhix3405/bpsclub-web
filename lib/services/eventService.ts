@@ -1,5 +1,4 @@
 import { API_BASE_URL } from '@/config/enpoints';
-import { store } from '@/lib/store';
 interface EventCategory {
   id: number;
   name: string;
@@ -63,31 +62,6 @@ class EventService {
     this.baseURL = API_BASE_URL;
   }
 
-  private getAuthHeaders(): Record<string, string> {
-    const state = store.getState();
-    const token = state.auth.user?.access_token;
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-    
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-    
-    return headers;
-  }
-
-  private getAuthHeadersForFormData(): Record<string, string> {
-    const state = store.getState();
-    const token = state.auth.user?.access_token;
-    const headers: Record<string, string> = {};
-    
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-    
-    return headers;
-  }
 
   async getAllEvents(params?: GetAllEventsParams): Promise<Event[]> {
     try {
