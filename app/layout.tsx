@@ -7,7 +7,6 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ParticlesBackground } from "@/components/particles-background";
 import { Toaster } from "@/components/ui/sonner";
-import { ReduxProvider } from "@/lib/providers/ReduxProvider";
 import {
   organizationSchema,
   websiteSchema,
@@ -196,25 +195,23 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="//res.cloudinary.com" />
       </head>
       <body className={inter.className}>
-        <ReduxProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="light"
-            enableSystem={false}
-            disableTransitionOnChange
-            forcedTheme="light"
-          >
-            <div className="relative flex min-h-screen flex-col">
-              <div className="relative">
-                <ParticlesBackground />
-              </div>
-              <SiteHeader />
-              <main className="flex-1">{children}</main>
-              <SiteFooter />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem={false}
+          disableTransitionOnChange
+          forcedTheme="light"
+        >
+          <div className="relative flex min-h-screen flex-col">
+            <div className="relative">
+              <ParticlesBackground />
             </div>
-            <Toaster />
-          </ThemeProvider>
-        </ReduxProvider>
+            <SiteHeader />
+            <main className="flex-1">{children}</main>
+            <SiteFooter />
+          </div>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );
