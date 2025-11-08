@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -19,11 +19,9 @@ import {
   AnimatedHeading,
   AnimatedDivider,
 } from "@/components/ui/animated-section";
-import { toast } from "sonner";
 
-// Import Event types and service
-import type { Event } from "@/lib/services/eventService";
-import { eventService } from "@/lib/services/eventService";
+// Import useEvent hook
+import { useEvent } from "@/hooks/useEvent";
 
 // Helper: format date as dd/MM/yyyy
 function formatDate(dateString?: string) {
@@ -39,40 +37,27 @@ function formatTime(timeString?: string) {
 }
 
 export default function EventsPage() {
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [eventData, setEventData] = useState<Event[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Use the centralized useEvent hook
+  const {
+    events: eventData,
+    categories,
+    loading: isLoading,
+    selectedCategory,
+    searchQuery,
+    setSelectedCategory,
+    setSearchQuery,
+  } = useEvent();
+
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
 
-  // Fetch events data using eventService
-  useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        const data = await eventService.getAllEvents({
-          category: selectedCategory !== "all" ? selectedCategory : "",
-          search: searchQuery,
-        });
-        setEventData(data || []);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
-        toast.error("Failed to load events data");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchEvents();
-  }, [selectedCategory, searchQuery]);
-
-  // Mock data for event categories (replace with dynamic fetch if needed)
-  const categories = ["all", "Workshop", "Hackathon", "Seminar", "Community"];
+  // Convert categories to include "all" option
+  const categoryOptions = [
+    "all", 
+    ...categories.map(cat => cat.name)
+  ];
 
   // Animation variants
   const containerVariants = {
@@ -178,7 +163,7 @@ export default function EventsPage() {
                 animate={inView ? { opacity: 1, x: 0 } : {}}
                 transition={{ duration: 0.8, delay: 0.3 }}
               >
-                {categories.map((category) => (
+                {categoryOptions.map((category) => (
                   <Button
                     key={category}
                     variant={
@@ -202,22 +187,8 @@ export default function EventsPage() {
             </div>
           )}
 
-          {/* Error State */}
-          {error && !isLoading && (
-            <div className="text-center py-12">
-              <p className="text-red-600 mb-4">{error}</p>
-              <Button
-                variant="outline"
-                onClick={() => window.location.reload()}
-                className="text-[#004987] border-[#004987] hover:bg-[#004987] hover:text-white"
-              >
-                Retry
-              </Button>
-            </div>
-          )}
-
           {/* Events Grid */}
-          {!isLoading && !error && (
+          {!isLoading && (
             <motion.div
               variants={containerVariants}
               initial="hidden"
@@ -248,7 +219,7 @@ export default function EventsPage() {
                     <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     <div className="absolute top-4 left-4">
                       <span className="px-3 py-1 text-xs font-medium bg-[#004987] text-white rounded-full">
-                        {/* {event.category} */}
+                        {event.category?.name || 'Uncategorized'}
                       </span>
                     </div>
                   </div>
@@ -300,7 +271,7 @@ export default function EventsPage() {
           )}
 
           {/* No Results Message */}
-          {!isLoading && !error && eventData.length === 0 && (
+          {!isLoading && eventData.length === 0 && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}

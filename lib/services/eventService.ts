@@ -225,6 +225,75 @@ class EventService {
       throw error;
     }
   }
+
+  async incrementViews(uuid: string): Promise<{ message: string }> {
+    try {
+      const url = `${this.baseURL}/events/uuid/${uuid}/views`;
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error incrementing views:', error);
+      throw error;
+    }
+  }
+
+  async incrementLikes(uuid: string): Promise<{ message: string }> {
+    try {
+      const url = `${this.baseURL}/events/uuid/${uuid}/likes`;
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error incrementing likes:', error);
+      throw error;
+    }
+  }
+
+  async incrementComments(uuid: string): Promise<{ message: string }> {
+    try {
+      const url = `${this.baseURL}/events/uuid/${uuid}/comments`;
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error incrementing comments:', error);
+      throw error;
+    }
+  }
 }
 
 export const eventService = new EventService();

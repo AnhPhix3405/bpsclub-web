@@ -20,6 +20,7 @@ import {
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { eventService, Event, EventSchedule } from "@/lib/services/eventService";
+import { useEvent } from "@/hooks/useEvent";
 
 function formatDate(dateString?: string) {
   if (!dateString) return "";
@@ -75,6 +76,9 @@ export default function EventDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Use the useEvent hook for event operations
+  const { getEventWithViews } = useEvent();
+
   // --- Additions for tag/category filtering and child events ---
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [showAllTags, setShowAllTags] = useState(false);
@@ -114,8 +118,8 @@ export default function EventDetailPage() {
       try {
         setIsLoading(true);
         setError(null);
-        // Fetch by id or uuid using smart method
-        const eventData = await eventService.getEvent(eventId);
+        // Use the hook's method which automatically increments views
+        const eventData = await getEventWithViews(eventId);
         setEvent(eventData || null);
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
@@ -126,7 +130,7 @@ export default function EventDetailPage() {
     };
 
     fetchEvent();
-  }, [eventId]); // Re-fetch if eventId changes
+  }, [eventId, getEventWithViews]); // Re-fetch if eventId changes
 
   if (isLoading) {
     return (
