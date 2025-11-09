@@ -1,15 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Calendar,
   MapPin,
   Clock,
-  ChevronRight,
+  ChevronLeft,
   Search,
   Eye,
 } from "lucide-react";
@@ -20,9 +20,7 @@ import {
   AnimatedHeading,
   AnimatedDivider,
 } from "@/components/ui/animated-section";
-
-// Import useEvent hook
-import { useEvent } from "@/hooks/useEvent";
+import { eventService, Event } from "@/lib/services/eventService";
 
 // Helper: format date as dd/MM/yyyy
 function formatDate(dateString?: string) {
@@ -37,41 +35,48 @@ function formatTime(timeString?: string) {
   return timeString.slice(0, 5);
 }
 
-export default function EventsPage() {
+export default function CategoryPage() {
   const router = useRouter();
+  const params = useParams();
+  let categoryName: string = decodeURIComponent(params.category as string);
+  categoryName = categoryName.charAt(0).toUpperCase() + categoryName.slice(1);
   
-  // Use the centralized useEvent hook
-  const {
-    events: eventData,
-    categories,
-    loading: isLoading,
-    selectedCategory,
-    searchQuery,
-    setSelectedCategory,
-    setSearchQuery,
-  } = useEvent();
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
 
-  // Convert categories to include "all" option
-  const categoryOptions = [
-    "all", 
-    ...categories.map(cat => cat.name)
-  ];
+  // Fetch events for this category
+  useEffect(() => {
+    const fetchCategoryEvents = async () => {
+      try {
+        setLoading(true);
+        const data = await eventService.getAllEvents({
+          category: categoryName,
+          search: searchQuery || undefined,
+        });
+        setEvents(data);
+      } catch (error) {
+        console.error("Error fetching category events:", error);
+        setEvents([]);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Handle category click
-  const handleCategoryClick = (category: string) => {
-    if (category === "all") {
-      // Stay on current page but reset filter
-      setSelectedCategory(category);
-    } else {
-      category = category.toLowerCase();
-      router.push(`/events/categories/${encodeURIComponent(category)}`);
-    }
-  };
+    fetchCategoryEvents();
+  }, [categoryName, searchQuery]);
+
+  // Filter events based on search
+  const filteredEvents = events.filter(event =>
+    event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    event.excerpt?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    event.location?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   // Animation variants
   const containerVariants = {
@@ -135,13 +140,24 @@ export default function EventsPage() {
 
         <div className="container relative z-10 px-4 md:px-6">
           <AnimatedSection className="max-w-3xl mx-auto text-center">
+            {/* Back button */}
+            <div className="flex justify-start mb-6">
+              <Button
+                variant="outline"
+                onClick={() => router.back()}
+                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+              >
+                <ChevronLeft className="w-4 h-4 mr-2" />
+                Back to Events
+              </Button>
+            </div>
+            
             <AnimatedHeading className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
-              Blockchain Pioneer Student Events
+              {categoryName} Events
             </AnimatedHeading>
             <AnimatedDivider className="w-24 h-1 bg-white mx-auto mb-8" />
             <p className="text-lg md:text-xl text-white/90 mb-8">
-              Explore events, workshops, and hackathons about Blockchain and
-              Web3
+              Explore {categoryName.toLowerCase()} events, workshops, and activities
             </p>
           </AnimatedSection>
         </div>
@@ -150,66 +166,44 @@ export default function EventsPage() {
       {/* Events Section */}
       <section className="py-16 md:py-24 bg-gray-50" ref={ref}>
         <div className="container px-4 md:px-6">
-          {/* Filters */}
+          {/* Search */}
           <motion.div className="mb-12">
-            <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-8">
-              {/* Search */}
+            <div className="flex justify-center">
               <motion.div
                 className="relative w-full md:w-96"
-                initial={{ opacity: 0, x: -20 }}
-                animate={inView ? { opacity: 1, x: 0 } : {}}
+                initial={{ opacity: 0, y: -20 }}
+                animate={inView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.8, delay: 0.2 }}
               >
                 <input
                   type="text"
-                  placeholder="Search events..."
+                  placeholder="Search in this category..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full px-4 py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#004987] focus:border-transparent transition-all duration-300"
                 />
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               </motion.div>
-
-              {/* Category Filter */}
-              <motion.div
-                className="flex flex-wrap gap-2"
-                initial={{ opacity: 0, x: 20 }}
-                animate={inView ? { opacity: 1, x: 0 } : {}}
-                transition={{ duration: 0.8, delay: 0.3 }}
-              >
-                {categoryOptions.map((category) => (
-                  <Button
-                    key={category}
-                    variant={
-                      selectedCategory === category ? "default" : "outline"
-                    }
-                    onClick={() => handleCategoryClick(category)}
-                    className="transition-all duration-300 hover:scale-105"
-                  >
-                    {category === "all" ? "All categories" : category}
-                  </Button>
-                ))}
-              </motion.div>
             </div>
           </motion.div>
 
           {/* Loading State */}
-          {isLoading && (
+          {loading && (
             <div className="text-center py-12">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-[#004987] border-t-transparent"></div>
-              <p className="mt-4 text-gray-600">Loading events...</p>
+              <p className="mt-4 text-gray-600">Loading {categoryName.toLowerCase()} events...</p>
             </div>
           )}
 
           {/* Events Grid */}
-          {!isLoading && (
+          {!loading && filteredEvents.length > 0 && (
             <motion.div
               variants={containerVariants}
               initial="hidden"
               animate={inView ? "visible" : "hidden"}
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
             >
-              {eventData.map((event) => (
+              {filteredEvents.map((event) => (
                 <motion.div
                   key={event.id}
                   variants={itemVariants}
@@ -232,11 +226,9 @@ export default function EventsPage() {
                     />
                     <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     <div className="absolute top-4 left-4">
-                      <Link href={`/events/categories/${encodeURIComponent(event.category?.name || 'uncategorized')}`}>
-                        <span className="px-3 py-1 text-xs font-medium bg-[#004987] text-white rounded-full hover:bg-[#003b6d] transition-colors duration-300 cursor-pointer">
-                          {event.category?.name || 'Uncategorized'}
-                        </span>
-                      </Link>
+                      <span className="px-3 py-1 text-xs font-medium bg-[#004987] text-white rounded-full">
+                        {event.category?.name || 'Uncategorized'}
+                      </span>
                     </div>
                   </div>
                   <div className="p-6">
@@ -262,17 +254,17 @@ export default function EventsPage() {
                     <p className="text-gray-600 text-sm md:text-base mb-4 line-clamp-3">
                       {event.excerpt}
                     </p>
-                    <div className="flex items-center text-sm text-gray-500 mb-2">
-                      <MapPin className="h-4 w-4 mr-1" />
-                      <span>{event.location}</span>
-                    </div>
+                    {event.location && (
+                      <div className="flex items-center text-sm text-gray-500 mb-2">
+                        <MapPin className="h-4 w-4 mr-1" />
+                        <span>{event.location}</span>
+                      </div>
+                    )}
                     <div className="flex items-center text-sm text-gray-500 mb-4">
                       <Eye className="h-4 w-4 mr-1" />
                       <span>{event.views || 0} views</span>
                     </div>
-                    <Link
-                      href={`/events/${event.event_uuid}`}
-                    >
+                    <Link href={`/events/${event.event_uuid}`}>
                       <Button
                         variant="outline"
                         className="w-full text-[#004987] border-[#004987] hover:bg-[#004987] hover:text-white transition-colors duration-300"
@@ -287,52 +279,40 @@ export default function EventsPage() {
           )}
 
           {/* No Results Message */}
-          {!isLoading && eventData.length === 0 && (
+          {!loading && filteredEvents.length === 0 && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="text-center py-12"
             >
-              <p className="text-gray-600 text-lg">
-                No events match your search criteria.
-              </p>
+              <div className="max-w-md mx-auto">
+                <Calendar className="mx-auto h-16 w-16 text-gray-400 mb-4" />
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  No events found
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  {searchQuery ? 
+                    `No events in "${categoryName}" match your search "${searchQuery}".` :
+                    `No events found in "${categoryName}" category.`
+                  }
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Button
+                    variant="outline"
+                    onClick={() => setSearchQuery("")}
+                    className="text-[#004987] border-[#004987] hover:bg-[#004987] hover:text-white"
+                  >
+                    Clear search
+                  </Button>
+                  <Link href="/events">
+                    <Button className="bg-[#004987] hover:bg-[#003b6d]">
+                      View all events
+                    </Button>
+                  </Link>
+                </div>
+              </div>
             </motion.div>
           )}
-        </div>
-      </section>
-
-      {/* Call to Action */}
-      <section className="py-16 md:py-24 bg-gradient-to-r from-[#004987] to-[#0070b8] text-white">
-        <div className="container px-4 md:px-6">
-          <AnimatedSection className="max-w-3xl mx-auto text-center">
-            <AnimatedHeading className="text-2xl md:text-3xl font-bold mb-4">
-              Want to organize an event with us?
-            </AnimatedHeading>
-            <p className="text-lg mb-8 text-white/90">
-              Contact us to collaborate on Blockchain and Web3 events
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/contact">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="bg-white text-[#004987] hover:bg-gray-100 transition-all duration-300 hover:scale-105"
-                >
-                  Contact us
-                  <ChevronRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-              <Link href="/partners">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="bg-white text-[#004987] hover:bg-gray-100 transition-all duration-300 hover:scale-105"
-                >
-                  Learn more
-                </Button>
-              </Link>
-            </div>
-          </AnimatedSection>
         </div>
       </section>
     </div>
