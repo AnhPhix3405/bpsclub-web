@@ -83,7 +83,7 @@ class EventService {
         queryParams.append('search', params.search);
       }
 
-      const url = `${this.baseURL}/events/get-all${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      const url = `${this.baseURL}/events/get-all-active${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
 
       const response = await fetch(url, {
         method: 'GET',
