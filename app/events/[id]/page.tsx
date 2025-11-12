@@ -323,12 +323,6 @@ export default function EventDetailPage() {
                   <h2 className="text-2xl font-bold text-[#004987]">
                     Event introduction
                   </h2>
-                  {/* Debug info - remove in production */}
-                  {event.notion_content && (
-                    <span className="text-xs px-2 py-1 bg-gray-100 rounded text-gray-600">
-                      {isHTML(event.notion_content) ? 'HTML Content' : 'Markdown Content'}
-                    </span>
-                  )}
                 </div>
                 {renderContent(event.notion_content || "")}
 
