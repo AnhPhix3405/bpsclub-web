@@ -3,7 +3,24 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Linkedin, ChevronRight, ChevronLeft } from "lucide-react";
+import { 
+  Linkedin, 
+  ChevronRight, 
+  ChevronLeft, 
+  Github, 
+  Mail, 
+  Twitter,
+  ExternalLink,
+  Globe,
+  MessageCircle,
+  Edit,
+  Code,
+  HelpCircle,
+  Image as ImageIcon,
+  Figma,
+  Video,
+  Music
+} from "lucide-react";
 import Link from "next/link";
 import {
   AnimatedSection,
@@ -12,16 +29,86 @@ import {
   AnimatedCard,
 } from "@/components/ui/animated-section";
 import { motion, AnimatePresence } from "framer-motion";
-import { Github, Mail } from "lucide-react";
 import { 
   teamService, 
   teamUtils, 
   getSocialUrl,
+  getSocialIcon,
+  getPlatformDisplayName,
+  formatSocialUrl,
+  isValidUrl,
   type Member,
   type MemberSocial,
   type MemberRole,
   type Board 
 } from "@/lib/services/teamService";
+
+// Component for rendering social icons with dynamic platform support
+const SocialIcon = ({ platform, url, size = "w-5 h-5" }: { platform: string; url: string; size?: string }) => {
+  const iconType = getSocialIcon(platform);
+  const formattedUrl = formatSocialUrl(url, platform);
+  
+  if (!formattedUrl) return null;
+  
+  const getIcon = () => {
+    const iconClass = `${size} text-gray-700 transition-colors`;
+    
+    switch (iconType) {
+      case 'github':
+        return <Github className={`${iconClass} hover:text-black`} />;
+      case 'linkedin':
+        return <Linkedin className={`${iconClass} hover:text-blue-600`} />;
+      case 'twitter':
+        return <Twitter className={`${iconClass} hover:text-blue-400`} />;
+      case 'facebook':
+        return <Globe className={`${iconClass} hover:text-blue-500`} />;
+      case 'instagram':
+        return <Globe className={`${iconClass} hover:text-pink-500`} />;
+      case 'youtube':
+        return <Video className={`${iconClass} hover:text-red-500`} />;
+      case 'tiktok':
+        return <Video className={`${iconClass} hover:text-purple-500`} />;
+      case 'mail':
+        return <Mail className={`${iconClass} hover:text-green-500`} />;
+      case 'globe':
+        return <Globe className={`${iconClass} hover:text-blue-500`} />;
+      case 'messageCircle':
+        return <MessageCircle className={`${iconClass} hover:text-green-500`} />;
+      case 'edit':
+        return <Edit className={`${iconClass} hover:text-orange-500`} />;
+      case 'code':
+        return <Code className={`${iconClass} hover:text-purple-600`} />;
+      case 'helpCircle':
+        return <HelpCircle className={`${iconClass} hover:text-orange-600`} />;
+      case 'image':
+        return <ImageIcon className={`${iconClass} hover:text-pink-600`} />;
+      case 'figma':
+        return <Figma className={`${iconClass} hover:text-purple-500`} />;
+      case 'video':
+        return <Video className={`${iconClass} hover:text-red-600`} />;
+      case 'music':
+        return <Music className={`${iconClass} hover:text-green-600`} />;
+      case 'externalLink':
+      default:
+        return <ExternalLink className={`${iconClass} hover:text-blue-500`} />;
+    }
+  };
+
+  const platformLabel = getPlatformDisplayName(platform);
+  
+  return (
+    <a
+      href={formattedUrl}
+      target={platform.toLowerCase() === 'email' ? '_self' : '_blank'}
+      rel={platform.toLowerCase() === 'email' ? undefined : 'noopener noreferrer'}
+      aria-label={`${platformLabel} profile`}
+      title={`${platformLabel} profile`}
+      className="hover:scale-110 transition-transform inline-flex"
+    >
+      {getIcon()}
+    </a>
+  );
+};
 
 export default function TeamPage() {
   const [members, setMembers] = useState<Member[]>([]);
@@ -125,31 +212,21 @@ export default function TeamPage() {
                     <div className="uppercase text-sm text-gray-800 mb-2 text-center tracking-widest">
                       {member.role?.name || 'Member'}
                     </div>
-                    <div className="flex gap-4 mt-3 justify-center">
-                      {getSocialUrl(member.socials, 'github') && (
-                        <a
-                          href={getSocialUrl(member.socials, 'github')}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label="GitHub"
-                        >
-                          <Github className="w-5 h-5 text-gray-700 hover:text-blue-500 transition" />
-                        </a>
-                      )}
-                      {getSocialUrl(member.socials, 'linkedin') && (
-                        <a
-                          href={getSocialUrl(member.socials, 'linkedin')}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label="LinkedIn"
-                        >
-                          <Linkedin className="w-5 h-5 text-gray-700 hover:text-blue-500 transition" />
-                        </a>
-                      )}
-                      {getSocialUrl(member.socials, 'email') && (
-                        <a href={`mailto:${getSocialUrl(member.socials, 'email')}`} aria-label="Email">
-                          <Mail className="w-5 h-5 text-gray-700 hover:text-blue-500 transition" />
-                        </a>
+                    <div className="flex gap-3 mt-3 justify-center flex-wrap">
+                      {member.socials && member.socials.length > 0 ? (
+                        member.socials
+                          .filter(social => social.url && social.url.trim() !== '')
+                          .slice(0, 4) // Limit to 4 social links to prevent overflow
+                          .map((social, index) => (
+                            <SocialIcon
+                              key={`${social.platform}-${index}`}
+                              platform={social.platform}
+                              url={social.url}
+                              size="w-5 h-5"
+                            />
+                          ))
+                      ) : (
+                        <span className="text-xs text-gray-400">No social links</span>
                       )}
                     </div>
                   </div>
@@ -211,31 +288,21 @@ export default function TeamPage() {
                     <div className="uppercase text-xs text-gray-800 mb-2 text-center tracking-widest">
                       {member.role?.name || 'Member'}
                     </div>
-                    <div className="flex gap-2 mt-2 justify-center">
-                      {getSocialUrl(member.socials, 'github') && (
-                        <a
-                          href={getSocialUrl(member.socials, 'github')}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label="GitHub"
-                        >
-                          <Github className="w-4 h-4 text-gray-700 hover:text-blue-500 transition" />
-                        </a>
-                      )}
-                      {getSocialUrl(member.socials, 'linkedin') && (
-                        <a
-                          href={getSocialUrl(member.socials, 'linkedin')}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label="LinkedIn"
-                        >
-                          <Linkedin className="w-4 h-4 text-gray-700 hover:text-blue-500 transition" />
-                        </a>
-                      )}
-                      {getSocialUrl(member.socials, 'email') && (
-                        <a href={`mailto:${getSocialUrl(member.socials, 'email')}`} aria-label="Email">
-                          <Mail className="w-4 h-4 text-gray-700 hover:text-blue-500 transition" />
-                        </a>
+                    <div className="flex gap-2 mt-2 justify-center flex-wrap">
+                      {member.socials && member.socials.length > 0 ? (
+                        member.socials
+                          .filter(social => social.url && social.url.trim() !== '')
+                          .slice(0, 3) // Limit to 3 social links for modal to save space
+                          .map((social, index) => (
+                            <SocialIcon
+                              key={`modal-${social.platform}-${index}`}
+                              platform={social.platform}
+                              url={social.url}
+                              size="w-4 h-4"
+                            />
+                          ))
+                      ) : (
+                        <span className="text-xs text-gray-400">No social links</span>
                       )}
                     </div>
                   </div>

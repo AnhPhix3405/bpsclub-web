@@ -35,7 +35,111 @@ export type Member = {
 
 // Helper function to get social links
 export const getSocialUrl = (socials: MemberSocial[], platform: string): string | undefined => {
-  return socials.find(s => s.platform.toLowerCase() === platform.toLowerCase())?.url;
+  const social = socials.find(s => s.platform.toLowerCase() === platform.toLowerCase());
+  return social?.url;
+};
+
+// Helper function to get social icon component with support for dynamic platforms
+export const getSocialIcon = (platform: string): string => {
+  const platformLower = platform.toLowerCase();
+  
+  // Known platform mappings
+  const platformMap: { [key: string]: string } = {
+    'github': 'github',
+    'linkedin': 'linkedin',
+    'twitter': 'twitter',
+    'x': 'twitter',
+    'facebook': 'facebook',
+    'instagram': 'instagram',
+    'youtube': 'youtube',
+    'tiktok': 'tiktok',
+    'email': 'mail',
+    'website': 'globe',
+    'blog': 'globe',
+    'portfolio': 'globe',
+    'discord': 'messageCircle',
+    'telegram': 'messageCircle',
+    'whatsapp': 'messageCircle',
+    'slack': 'messageCircle',
+    'reddit': 'messageCircle',
+    'medium': 'edit',
+    'dev.to': 'code',
+    'codepen': 'code',
+    'stackoverflow': 'helpCircle',
+    'behance': 'image',
+    'dribbble': 'image',
+    'figma': 'figma',
+    'twitch': 'video',
+    'spotify': 'music',
+    'soundcloud': 'music',
+  };
+
+  return platformMap[platformLower] || 'externalLink';
+};
+
+// Helper function to get platform display name
+export const getPlatformDisplayName = (platform: string): string => {
+  const platformLower = platform.toLowerCase();
+  
+  const displayNameMap: { [key: string]: string } = {
+    'github': 'GitHub',
+    'linkedin': 'LinkedIn',
+    'twitter': 'Twitter',
+    'x': 'X (Twitter)',
+    'facebook': 'Facebook',
+    'instagram': 'Instagram',
+    'youtube': 'YouTube',
+    'tiktok': 'TikTok',
+    'email': 'Email',
+    'website': 'Website',
+    'blog': 'Blog',
+    'portfolio': 'Portfolio',
+    'discord': 'Discord',
+    'telegram': 'Telegram',
+    'whatsapp': 'WhatsApp',
+    'slack': 'Slack',
+    'reddit': 'Reddit',
+    'medium': 'Medium',
+    'dev.to': 'Dev.to',
+    'codepen': 'CodePen',
+    'stackoverflow': 'Stack Overflow',
+    'behance': 'Behance',
+    'dribbble': 'Dribbble',
+    'figma': 'Figma',
+    'twitch': 'Twitch',
+    'spotify': 'Spotify',
+    'soundcloud': 'SoundCloud',
+  };
+
+  return displayNameMap[platformLower] || platform.charAt(0).toUpperCase() + platform.slice(1);
+};
+
+// Helper function to check if URL is valid
+export const isValidUrl = (url: string): boolean => {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+// Helper function to format social URL properly
+export const formatSocialUrl = (url: string, platform: string): string => {
+  if (!url) return '';
+  
+  // If it's already a full URL, return as is
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  
+  // If it's an email, add mailto:
+  if (platform.toLowerCase() === 'email' || url.includes('@')) {
+    return url.startsWith('mailto:') ? url : `mailto:${url}`;
+  }
+  
+  // Add https:// for other platforms if missing
+  return `https://${url}`;
 };
 
 // API Service
