@@ -22,7 +22,7 @@ import { eventService } from "@/lib/services/eventService";
 import { partnerService } from "@/lib/services/partnerService";
 import JoinPopup from "@/components/join-popup";
 import { ParticlesBackground } from "@/components/particles-background";
-
+import short from "short-uuid";
 // Define types for data structures
 interface IntroFeature {
   icon: LucideIcon;
@@ -381,7 +381,9 @@ export default function Home() {
                         <span>{activity.views || 0} views</span>
                       </div>
                       <Link
-                        href={`/events/${activity.event_uuid || activity.id}`}
+                        href={`/events/${activity.slug}-${short().fromUUID(
+                                                activity.event_uuid
+                                              )}`}
                         onClick={async (e) => {
                           // Fire-and-forget increment, don't block navigation
                           try {

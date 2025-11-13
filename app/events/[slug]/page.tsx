@@ -488,7 +488,9 @@ export default function EventDetailPage() {
                       <Eye className="h-4 w-4 mr-1" />
                       <span>{event.views || 0} lượt xem</span>
                     </div>
-                    <Link href={`/events/${event.event_uuid || event.id}`}>
+                    <Link href={`/events/${event.slug}-${short().fromUUID(
+                                            event.event_uuid
+                                          )}`}>
                       <Button
                         variant="outline"
                         className="w-full text-[#004987] border-[#004987] hover:bg-[#004987] hover:text-white transition-colors duration-300"
