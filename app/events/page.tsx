@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
+import short from "short-uuid";
 import {
   AnimatedSection,
   AnimatedHeading,
@@ -271,7 +272,9 @@ export default function EventsPage() {
                       <span>{event.views || 0} views</span>
                     </div>
                     <Link
-                      href={`/events/${event.slug}/${event.event_uuid}`}
+                      href={`/events/${event.slug}-${short().fromUUID(
+                        event.event_uuid
+                      )}`}
                     >
                       <Button
                         variant="outline"

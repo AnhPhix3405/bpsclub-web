@@ -21,6 +21,7 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { eventService, Event, EventSchedule } from "@/lib/services/eventService";
 import { useEvent } from "@/hooks/useEvent";
+import short from "short-uuid";
 
 function formatDate(dateString?: string) {
   if (!dateString) return "";
@@ -69,8 +70,10 @@ function renderContent(content: string) {
 
 export default function EventDetailPage() {
   const params = useParams();
-  // Use id as the parameter for the event
-  const eventId = params.id as string;
+  // Use slug as the parameter for the event
+  const slugWithUuid = params.slug as string;
+  const encodedUuid = slugWithUuid ? slugWithUuid.split("-").pop() || "" : "";
+  const eventId = short().toUUID(encodedUuid); 
 
   const [event, setEvent] = useState<Event | null>(null);
   const [isLoading, setIsLoading] = useState(true);
