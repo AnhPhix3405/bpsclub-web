@@ -272,9 +272,7 @@ export default function EventsPage() {
                       <span>{event.views || 0} views</span>
                     </div>
                     <Link
-                      href={`/events/${event.slug}-${short().fromUUID(
-                        event.event_uuid
-                      )}`}
+                      href={`/events/${event.slug}`}
                     >
                       <Button
                         variant="outline"

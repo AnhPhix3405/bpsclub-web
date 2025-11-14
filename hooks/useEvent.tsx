@@ -38,10 +38,8 @@ interface UseEventReturn {
   refreshEvents: () => Promise<void>;
   
   // Single event actions
-  getEventWithViews: (identifier: string | number) => Promise<Event>;
-  incrementEventViews: (uuid: string) => Promise<void>;
-  incrementEventLikes: (uuid: string) => Promise<void>;
-  incrementEventComments: (uuid: string) => Promise<void>;
+  getEventWithViews: (identifier: string) => Promise<Event>;
+  incrementEventViews: (slug: string) => Promise<void>;
 }
 
 const ITEMS_PER_PAGE = 10;
@@ -109,22 +107,22 @@ export const useEvent = (): UseEventReturn => {
   }, [fetchEvents]);
 
   // Get single event and increment views (only once per session)
-  const getEventWithViews = useCallback(async (identifier: string | number): Promise<Event> => {
+  const getEventWithViews = useCallback(async (slug: string): Promise<Event> => {
     try {
-      // Fetch event data using smart method
-      const eventData = await eventService.getEvent(identifier);
-      
+      // Fetch event data using slug
+      const eventData = await eventService.getEventBySlug(slug);
+
       // Increment views only if event hasn't been viewed in this session
-      if (eventData && eventData.event_uuid && !viewedEvents.current.has(eventData.event_uuid)) {
+      if (eventData && eventData.slug && !viewedEvents.current.has(eventData.slug)) {
+        viewedEvents.current.add(eventData.slug); // Mark as viewed
         try {
-          await eventService.incrementViews(eventData.event_uuid);
-          viewedEvents.current.add(eventData.event_uuid); // Mark as viewed
+          await eventService.incrementViews(eventData.slug);
         } catch (viewError) {
           console.warn('Failed to increment views:', viewError);
           // Don't throw error for view increment failure
         }
       }
-      
+
       return eventData;
     } catch (error) {
       console.error('Error fetching event with views:', error);
@@ -133,38 +131,14 @@ export const useEvent = (): UseEventReturn => {
   }, []);
 
   // Increment event views
-  const incrementEventViews = useCallback(async (uuid: string): Promise<void> => {
+  const incrementEventViews = useCallback(async (slug: string): Promise<void> => {
     try {
-      await eventService.incrementViews(uuid);
+      await eventService.incrementViews(slug);
     } catch (error) {
       console.error('Error incrementing views:', error);
       throw error;
     }
   }, []);
-
-  // Increment event likes
-  const incrementEventLikes = useCallback(async (uuid: string): Promise<void> => {
-    try {
-      await eventService.incrementLikes(uuid);
-    } catch (error) {
-      console.error('Error incrementing likes:', error);
-      throw error;
-    }
-  }, []);
-
-  // Increment event comments
-  const incrementEventComments = useCallback(async (uuid: string): Promise<void> => {
-    try {
-      await eventService.incrementComments(uuid);
-    } catch (error) {
-      console.error('Error incrementing comments:', error);
-      throw error;
-    }
-  }, []);
-
-
-
-
 
   // Load data on component mount
   useEffect(() => {
@@ -210,7 +184,5 @@ export const useEvent = (): UseEventReturn => {
     // Single event actions
     getEventWithViews,
     incrementEventViews,
-    incrementEventLikes,
-    incrementEventComments,
   };
 };

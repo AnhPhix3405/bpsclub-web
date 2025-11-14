@@ -21,7 +21,6 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { eventService, Event, EventSchedule } from "@/lib/services/eventService";
 import { useEvent } from "@/hooks/useEvent";
-import short from "short-uuid";
 
 function formatDate(dateString?: string) {
   if (!dateString) return "";
@@ -70,10 +69,8 @@ function renderContent(content: string) {
 
 export default function EventDetailPage() {
   const params = useParams();
-  // Use slug as the parameter for the event
-  const slugWithUuid = params.slug as string;
-  const encodedUuid = slugWithUuid ? slugWithUuid.split("-").pop() || "" : "";
-  const eventId = short().toUUID(encodedUuid); 
+  // Use slug directly as the parameter for the event
+  const slug = params.slug as string;
 
   const [event, setEvent] = useState<Event | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -109,10 +106,10 @@ export default function EventDetailPage() {
       .finally(() => setIsChildLoading(false));
   }, [event]);
 
-  // Fetch event data by id
+  // Fetch event data by slug
   useEffect(() => {
-    if (!eventId) {
-      setError("Missing event id");
+    if (!slug) {
+      setError("Missing event slug");
       setIsLoading(false);
       return;
     }
@@ -122,7 +119,7 @@ export default function EventDetailPage() {
         setIsLoading(true);
         setError(null);
         // Use the hook's method which automatically increments views
-        const eventData = await getEventWithViews(eventId);
+        const eventData = await getEventWithViews(slug);
         setEvent(eventData || null);
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
@@ -133,7 +130,7 @@ export default function EventDetailPage() {
     };
 
     fetchEvent();
-  }, [eventId, getEventWithViews]); // Re-fetch if eventId changes
+  }, [slug, getEventWithViews]); // Re-fetch if slug changes
 
   if (isLoading) {
     return (
@@ -488,9 +485,7 @@ export default function EventDetailPage() {
                       <Eye className="h-4 w-4 mr-1" />
                       <span>{event.views || 0} lượt xem</span>
                     </div>
-                    <Link href={`/events/${event.slug}-${short().fromUUID(
-                                            event.event_uuid
-                                          )}`}>
+                    <Link href={`/events/${event.slug}`}>
                       <Button
                         variant="outline"
                         className="w-full text-[#004987] border-[#004987] hover:bg-[#004987] hover:text-white transition-colors duration-300"

@@ -63,7 +63,6 @@ class EventService {
     this.baseURL = API_BASE_URL;
   }
 
-
   async getAllEvents(params?: GetAllEventsParams): Promise<Event[]> {
     try {
       const queryParams = new URLSearchParams();
@@ -105,77 +104,28 @@ class EventService {
     }
   }
 
-  async getEventById(id: number): Promise<Event> {
+  async getEventBySlug(slug: string): Promise<Event> {
     try {
-      const url = `${this.baseURL}/events/${id}`;
-
+      const url = `${this.baseURL}/events/slug/${slug}`;  
       const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
       });
-
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
       const data: Event = await response.json();
       return data;
     } catch (error) {
-      console.error('Error fetching event:', error);
+      console.error('Error fetching event by slug:', error);
       throw error;
     }
   }
 
-  async getEventByUuid(uuid: string): Promise<Event> {
-    try {
-      const url = `${this.baseURL}/events/uuid/${uuid}`;
-
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data: Event = await response.json();
-      return data;
-    } catch (error) {
-      console.error('Error fetching event by UUID:', error);
-      throw error;
-    }
-  }
-
-  // Helper method to determine if string is UUID format
-  private isUuid(value: string): boolean {
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    return uuidRegex.test(value);
-  }
-
-  // Smart method that can handle both ID and UUID
-  async getEvent(identifier: string | number): Promise<Event> {
-    // If it's a number or numeric string, use getEventById
-    if (typeof identifier === 'number' || !isNaN(Number(identifier))) {
-      return await this.getEventById(Number(identifier));
-    }
-    
-    // If it looks like a UUID, use getEventByUuid
-    if (this.isUuid(identifier)) {
-      return await this.getEventByUuid(identifier);
-    }
-    
-    // Otherwise, try as ID first, then UUID if that fails
-    try {
-      return await this.getEventById(Number(identifier));
-    } catch (error) {
-      console.warn('Failed to get event by ID, trying UUID:', error);
-      return await this.getEventByUuid(identifier);
-    }
+  async getEvent(slug: string): Promise<Event> {
+    return await this.getEventBySlug(slug);
   }
 
   async getAllCategories(): Promise<EventCategory[]> {
@@ -201,9 +151,9 @@ class EventService {
     }
   }
 
-  async incrementViews(uuid: string): Promise<{ message: string }> {
+  async incrementViews(slug: string): Promise<{ message: string }> {
     try {
-      const url = `${this.baseURL}/events/uuid/${uuid}/views`;
+      const url = `${this.baseURL}/events/slug/${slug}/views`;
 
       const response = await fetch(url, {
         method: 'POST',
@@ -220,52 +170,6 @@ class EventService {
       return data;
     } catch (error) {
       console.error('Error incrementing views:', error);
-      throw error;
-    }
-  }
-
-  async incrementLikes(uuid: string): Promise<{ message: string }> {
-    try {
-      const url = `${this.baseURL}/events/uuid/${uuid}/likes`;
-
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error('Error incrementing likes:', error);
-      throw error;
-    }
-  }
-
-  async incrementComments(uuid: string): Promise<{ message: string }> {
-    try {
-      const url = `${this.baseURL}/events/uuid/${uuid}/comments`;
-
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error('Error incrementing comments:', error);
       throw error;
     }
   }
