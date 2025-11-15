@@ -37,9 +37,8 @@ export function SiteHeader() {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full border-b bg-white shadow-[0_4px_20px_rgba(0,73,135,0.29)] transition-transform duration-300 ${
-        isVisible ? "translate-y-0" : "-translate-y-full"
-      }`}
+      className={`sticky top-0 z-50 w-full border-b bg-white shadow-[0_4px_20px_rgba(0,73,135,0.29)] transition-transform duration-300 ${isVisible ? "translate-y-0" : "-translate-y-full"
+        }`}
     >
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-2">
@@ -65,30 +64,33 @@ export function SiteHeader() {
                 <Link
                   href="/"
                   scroll={true}
-                  className={`text-lg font-medium hover:text-[#004987] ${
-                    pathname === "/" ? "text-[#004987] font-bold" : ""
-                  }`}
+                  className={`text-lg font-medium hover:text-[#004987] ${pathname === "/" ? "text-[#004987] font-bold" : ""
+                    }`}
                 >
                   Home
                 </Link>
                 <Link
                   href="/about"
                   scroll={true}
-                  className={`text-lg font-medium hover:text-[#004987] ${
-                    pathname === "/about" ? "text-[#004987] font-bold" : ""
-                  }`}
+                  className={`text-lg font-medium hover:text-[#004987] ${pathname === "/about" ? "text-[#004987] font-bold" : ""
+                    }`}
                 >
                   About
                 </Link>
                 <Link
                   href="/events"
                   scroll={true}
-                  className={`text-lg font-medium hover:text-[#004987] ${
-                    pathname === "/events" ? "text-[#004987] font-bold" : ""
-                  }`}
+                  className={`text-lg font-medium hover:text-[#004987] ${pathname === "/events" ? "text-[#004987] font-bold" : ""
+                    }`}
                 >
                   Events
                 </Link>
+                <Link
+                  href="/blogs"
+                  scroll={true}
+                  className={`text-lg font-medium hover:text-[#004987] ${pathname === "/news" ? "text-[#004987] font-bold" : ""
+                    }`}
+                >News</Link>
                 {/* 
                 <Link
                   href="/news"
@@ -125,27 +127,24 @@ export function SiteHeader() {
                 <Link
                   href="/team"
                   scroll={true}
-                  className={`text-lg font-medium hover:text-[#004987] ${
-                    pathname === "/team" ? "text-[#004987] font-bold" : ""
-                  }`}
+                  className={`text-lg font-medium hover:text-[#004987] ${pathname === "/team" ? "text-[#004987] font-bold" : ""
+                    }`}
                 >
                   Team
                 </Link>
                 <Link
                   href="/contact"
                   scroll={true}
-                  className={`text-lg font-medium hover:text-[#004987] ${
-                    pathname === "/contact" ? "text-[#004987] font-bold" : ""
-                  }`}
+                  className={`text-lg font-medium hover:text-[#004987] ${pathname === "/contact" ? "text-[#004987] font-bold" : ""
+                    }`}
                 >
                   Contact
                 </Link>
                 <Link
                   href="/join"
                   scroll={true}
-                  className={`text-lg font-medium hover:text-[#004987] ${
-                    pathname === "/join" ? "text-[#004987] font-bold" : ""
-                  }`}
+                  className={`text-lg font-medium hover:text-[#004987] ${pathname === "/join" ? "text-[#004987] font-bold" : ""
+                    }`}
                 >
                   Join Club
                 </Link>
@@ -160,36 +159,41 @@ export function SiteHeader() {
                 <Link
                   href="/"
                   scroll={true}
-                  className={`text-sm font-medium transition-transform duration-200 hover:scale-105 hover:text-[#003b6d] active:text-[#002b52] ${
-                    pathname === "/"
-                      ? "text-[#003b6d] font-bold"
-                      : "text-[#004987]"
-                  }`}
+                  className={`text-sm font-medium transition-transform duration-200 hover:scale-105 hover:text-[#003b6d] active:text-[#002b52] ${pathname === "/"
+                    ? "text-[#003b6d] font-bold"
+                    : "text-[#004987]"
+                    }`}
                 >
                   Home
                 </Link>
                 <Link
                   href="/about"
                   scroll={true}
-                  className={`text-sm font-medium transition-transform duration-200 hover:scale-105 hover:text-[#003b6d] active:text-[#002b52] ${
-                    pathname === "/about"
-                      ? "text-[#003b6d] font-bold"
-                      : "text-[#004987]"
-                  }`}
+                  className={`text-sm font-medium transition-transform duration-200 hover:scale-105 hover:text-[#003b6d] active:text-[#002b52] ${pathname === "/about"
+                    ? "text-[#003b6d] font-bold"
+                    : "text-[#004987]"
+                    }`}
                 >
                   About
                 </Link>
                 <Link
                   href="/events"
                   scroll={true}
-                  className={`text-sm font-medium transition-transform duration-200 hover:scale-105 hover:text-[#003b6d] active:text-[#002b52] ${
-                    pathname === "/events"
-                      ? "text-[#003b6d] font-bold"
-                      : "text-[#004987]"
-                  }`}
+                  className={`text-sm font-medium transition-transform duration-200 hover:scale-105 hover:text-[#003b6d] active:text-[#002b52] ${pathname === "/events"
+                    ? "text-[#003b6d] font-bold"
+                    : "text-[#004987]"
+                    }`}
                 >
                   Events
                 </Link>
+                <Link
+                  href="/blogs"
+                  scroll={true}
+                  className={`text-sm font-medium transition-transform duration-200 hover:scale-105 hover:text-[#003b6d] active:text-[#002b52] ${pathname === "/news"
+                      ? "text-[#003b6d] font-bold"
+                      : "text-[#004987]"
+                    }`}
+                >News</Link>
                 {/* 
                 <Link
                   href="/news"
@@ -232,22 +236,20 @@ export function SiteHeader() {
                 <Link
                   href="/team"
                   scroll={true}
-                  className={`text-sm font-medium transition-transform duration-200 hover:scale-105 hover:text-[#003b6d] active:text-[#002b52] ${
-                    pathname === "/team"
-                      ? "text-[#003b6d] font-bold"
-                      : "text-[#004987]"
-                  }`}
+                  className={`text-sm font-medium transition-transform duration-200 hover:scale-105 hover:text-[#003b6d] active:text-[#002b52] ${pathname === "/team"
+                    ? "text-[#003b6d] font-bold"
+                    : "text-[#004987]"
+                    }`}
                 >
                   Team
                 </Link>
                 <Link
                   href="/contact"
                   scroll={true}
-                  className={`text-sm font-medium transition-transform duration-200 hover:scale-105 hover:text-[#003b6d] active:text-[#002b52] ${
-                    pathname === "/contact"
-                      ? "text-[#003b6d] font-bold"
-                      : "text-[#004987]"
-                  }`}
+                  className={`text-sm font-medium transition-transform duration-200 hover:scale-105 hover:text-[#003b6d] active:text-[#002b52] ${pathname === "/contact"
+                    ? "text-[#003b6d] font-bold"
+                    : "text-[#004987]"
+                    }`}
                 >
                   Contact
                 </Link>
@@ -258,27 +260,24 @@ export function SiteHeader() {
                 <Link
                   href="/"
                   scroll={true}
-                  className={`text-lg font-medium hover:text-[#004987] ${
-                    pathname === "/" ? "text-[#004987] font-bold" : ""
-                  }`}
+                  className={`text-lg font-medium hover:text-[#004987] ${pathname === "/" ? "text-[#004987] font-bold" : ""
+                    }`}
                 >
                   Home
                 </Link>
                 <Link
                   href="/about"
                   scroll={true}
-                  className={`text-lg font-medium hover:text-[#004987] ${
-                    pathname === "/about" ? "text-[#004987] font-bold" : ""
-                  }`}
+                  className={`text-lg font-medium hover:text-[#004987] ${pathname === "/about" ? "text-[#004987] font-bold" : ""
+                    }`}
                 >
                   About
                 </Link>
                 <Link
                   href="/events"
                   scroll={true}
-                  className={`text-lg font-medium hover:text-[#004987] ${
-                    pathname === "/events" ? "text-[#004987] font-bold" : ""
-                  }`}
+                  className={`text-lg font-medium hover:text-[#004987] ${pathname === "/events" ? "text-[#004987] font-bold" : ""
+                    }`}
                 >
                   Events
                 </Link>
@@ -318,27 +317,24 @@ export function SiteHeader() {
                 <Link
                   href="/team"
                   scroll={true}
-                  className={`text-lg font-medium hover:text-[#004987] ${
-                    pathname === "/team" ? "text-[#004987] font-bold" : ""
-                  }`}
+                  className={`text-lg font-medium hover:text-[#004987] ${pathname === "/team" ? "text-[#004987] font-bold" : ""
+                    }`}
                 >
                   Team
                 </Link>
                 <Link
                   href="/contact"
                   scroll={true}
-                  className={`text-lg font-medium hover:text-[#004987] ${
-                    pathname === "/contact" ? "text-[#004987] font-bold" : ""
-                  }`}
+                  className={`text-lg font-medium hover:text-[#004987] ${pathname === "/contact" ? "text-[#004987] font-bold" : ""
+                    }`}
                 >
                   Contact
                 </Link>
                 <Link
                   href="/join"
                   scroll={true}
-                  className={`text-lg font-medium hover:text-[#004987] ${
-                    pathname === "/join" ? "text-[#004987] font-bold" : ""
-                  }`}
+                  className={`text-lg font-medium hover:text-[#004987] ${pathname === "/join" ? "text-[#004987] font-bold" : ""
+                    }`}
                 >
                   Join Club
                 </Link>
@@ -347,9 +343,8 @@ export function SiteHeader() {
             <div>
               <Link href="/join">
                 <Button
-                  className={`${
-                    pathname === "/join" ? "bg-[#003b6d]" : "bg-[#004987]"
-                  } hover:bg-[#003b6d]`}
+                  className={`${pathname === "/join" ? "bg-[#003b6d]" : "bg-[#004987]"
+                    } hover:bg-[#003b6d]`}
                 >
                   Join Club
                 </Button>

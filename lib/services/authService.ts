@@ -37,7 +37,7 @@ class AuthService {
 
   async login(credentials: LoginCredentials): Promise<AuthUser> {
     try {
-      const response = await fetch(`${this.baseURL}/auth/login`, {
+      const response = await fetch(`${this.baseURL}/core/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -75,7 +75,7 @@ class AuthService {
 
   async verifyToken(token: string): Promise<AuthUser> {
     try {
-      const response = await fetch(`${this.baseURL}/auth/verify`, {
+      const response = await fetch(`${this.baseURL}/core/auth/verify`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
