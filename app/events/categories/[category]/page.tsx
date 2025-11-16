@@ -205,7 +205,7 @@ export default function CategoryPage() {
             >
               {filteredEvents.map((event) => (
                 <motion.div
-                  key={event.id}
+                  key={event.event_uuid}
                   variants={itemVariants}
                   whileHover={{ y: -5 }}
                   className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
