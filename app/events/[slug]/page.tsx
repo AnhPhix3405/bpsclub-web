@@ -97,7 +97,7 @@ export default function EventDetailPage() {
       .then((data) => {
         if (data && Array.isArray(data)) {
           // Exclude the current event itself
-          setChildEvents(data.filter((e: Event) => e.id !== event.id));
+          setChildEvents(data.filter((e: Event) => e.event_uuid !== event.event_uuid));
         } else {
           setChildEvents([]);
         }
@@ -430,7 +430,7 @@ export default function EventDetailPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {childEvents.map((event) => (
                 <div
-                  key={event.id}
+                  key={event.event_uuid}
                   className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
                 >
                   <div className="relative h-48 overflow-hidden group">

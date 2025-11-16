@@ -163,7 +163,7 @@ export default function BlogPage() {
             >
               {currentBlogs.map((blog) => (
                 <motion.div
-                  key={blog.id}
+                  key={blog.blog_uuid}
                   variants={itemVariants}
                   className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
                 >

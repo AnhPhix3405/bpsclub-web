@@ -12,7 +12,6 @@ interface BlogTag {
 }
 
 interface Blog {
-  id: number;
   blog_uuid: string;
   title: string;
   slug: string;
@@ -20,10 +19,8 @@ interface Blog {
   short_description: string;
   thumbnail_url?: string;
   views: number;
-  is_published: boolean;
   created_at: string;
   updated_at: string;
-  category_id?: number;
   category?: BlogCategory;
   author?: string;
   tags?: BlogTag[]; // Added tags property

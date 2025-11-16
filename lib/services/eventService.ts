@@ -1,11 +1,9 @@
 import { API_BASE_URL } from '@/config/enpoints';
 interface EventCategory {
-  id: number;
   name: string;
 }
 
 interface EventSchedule {
-  id: number;
   event_id: number;
   time: string;
   title: string;
@@ -14,7 +12,6 @@ interface EventSchedule {
 }
 
 interface EventSpeaker {
-  id: number;
   event_id: number;
   name: string;
   role?: string;
@@ -23,7 +20,6 @@ interface EventSpeaker {
 }
 
 interface Event {
-  id: number;
   event_uuid: string;
   title: string;
   slug: string;
@@ -40,9 +36,6 @@ interface Event {
   registration_link?: string;
   notion_content?: string;
   is_visible?: boolean;
-  created_at: string;
-  updated_at: string;
-  category_id?: number;
   category?: EventCategory;
   schedules?: EventSchedule[];
   speakers?: EventSpeaker[];
@@ -117,7 +110,6 @@ class EventService {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data: Event = await response.json();
-      data.category = await this.getCategoryById(data.category_id || 0);
       return data;
     } catch (error) {
       console.error('Error fetching event by slug:', error);
