@@ -130,6 +130,12 @@ export default function BlogPage() {
 
               {/* Category Filter */}
               <div className="flex gap-2">
+                <Button
+                  variant={selectedCategory === "all" ? "default" : "outline"}
+                  onClick={() => setSelectedCategory("all")}
+                >
+                  All Posts
+                </Button>
                 {categories.map((category) => (
                   <Button
                     key={category.id}
