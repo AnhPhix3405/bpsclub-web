@@ -152,16 +152,16 @@ export default function Home() {
 
   // Filter events by category (for child cards)
   const getSubEvents = (parentEvent: Event) => {
-    let filtered = featuredEvents.filter((e) => e.id !== parentEvent.id);
+    let filtered = featuredEvents.filter((e) => e.event_uuid !== parentEvent.event_uuid);
     if (selectedCategory !== "all") {
       filtered = filtered.filter(
-        (e) => e.category === parentEvent.category && e.id !== parentEvent.id
+        (e) => e.category === parentEvent.category && e.event_uuid !== parentEvent.event_uuid
       );
     }
     // If less than 3, take from others (excluding current)
     if (filtered.length < 3) {
       const others = featuredEvents.filter(
-        (e) => e.id !== parentEvent.id && !filtered.includes(e)
+        (e) => e.event_uuid !== parentEvent.event_uuid && !filtered.includes(e)
       );
       filtered = filtered.concat(others).slice(0, 3);
     } else {
@@ -322,7 +322,7 @@ export default function Home() {
                 )
                 .map((activity, index) => (
                   <motion.div
-                    key={activity.id}
+                    key={activity.event_uuid}
                     className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
                     initial={{ opacity: 0, y: 20 }}
                     animate={activitiesInView ? { opacity: 1, y: 0 } : {}}
@@ -386,7 +386,7 @@ export default function Home() {
                           try {
                             const viewsEndpoint = activity.event_uuid 
                               ? `/api/events/uuid/${activity.event_uuid}/views`
-                              : `/api/events/${activity.id}/views`;
+                              : `/api/events/${activity.event_uuid}/views`;
                             
                             navigator.sendBeacon?.(
                               viewsEndpoint,
