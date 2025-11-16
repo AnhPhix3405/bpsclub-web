@@ -117,6 +117,7 @@ class EventService {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data: Event = await response.json();
+      data.category = await this.getCategoryById(data.category_id || 0);
       return data;
     } catch (error) {
       console.error('Error fetching event by slug:', error);
@@ -147,6 +148,26 @@ class EventService {
       return data;
     } catch (error) {
       console.error('Error fetching categories:', error);
+      throw error;
+    }
+  }
+
+  async getCategoryById(id: number): Promise<EventCategory> {
+    try {
+      const url = `${this.baseURL}/events/categories/${id}`;
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data: EventCategory = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching category by ID:', error);
       throw error;
     }
   }

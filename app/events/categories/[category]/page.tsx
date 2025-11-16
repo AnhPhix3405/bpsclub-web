@@ -264,7 +264,7 @@ export default function CategoryPage() {
                       <Eye className="h-4 w-4 mr-1" />
                       <span>{event.views || 0} views</span>
                     </div>
-                    <Link href={`/events/${event.event_uuid}`}>
+                    <Link href={`/events/${event.slug}`}>
                       <Button
                         variant="outline"
                         className="w-full text-[#004987] border-[#004987] hover:bg-[#004987] hover:text-white transition-colors duration-300"
