@@ -10,8 +10,10 @@ import { useInView } from "react-intersection-observer";
 import { AnimatedDivider } from "@/components/ui/animated-section";
 import { useBlog } from "@/hooks/useBlog";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function BlogPage() {
+  const router = useRouter();
   const {
     blogs,
     categories,
@@ -53,6 +55,27 @@ export default function BlogPage() {
       },
     },
   };
+
+  // Optimize category click handling to navigate to category page
+  const handleCategoryClick = (category: string) => {
+    if (selectedCategory === category) return; // Avoid redundant updates
+
+    setSelectedCategory(category); // Update the selected category state
+
+    if (category !== "all") {
+      category = category.toLowerCase();
+      router.push(`/blogs/categories/${category}`); // Navigate to category page
+    } else {
+      toast("Showing all blogs"); // Notify user
+      router.push(`/categories/all`); // Navigate to all categories page
+    }
+  };
+
+  // Ensure selected category button has distinct styles
+  const categoryButtonClass = (category: string) =>
+    selectedCategory === category
+      ? "bg-[#004987] text-white hover:bg-[#003b6d]"
+      : "bg-white text-[#004987] hover:bg-gray-100";
 
   return (
     <div className="min-h-screen">
@@ -129,10 +152,11 @@ export default function BlogPage() {
               </div>
 
               {/* Category Filter */}
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Button
                   variant={selectedCategory === "all" ? "default" : "outline"}
-                  onClick={() => setSelectedCategory("all")}
+                  onClick={() => handleCategoryClick("all")}
+                  className={`transition-all duration-300 hover:scale-105 ${categoryButtonClass("all")}`}
                 >
                   All Posts
                 </Button>
@@ -142,7 +166,8 @@ export default function BlogPage() {
                     variant={
                       selectedCategory === category.name ? "default" : "outline"
                     }
-                    onClick={() => setSelectedCategory(category.name)}
+                    onClick={() => handleCategoryClick(category.name)}
+                    className={`transition-all duration-300 hover:scale-105 ${categoryButtonClass(category.name)}`}
                   >
                     {category.name}
                   </Button>
