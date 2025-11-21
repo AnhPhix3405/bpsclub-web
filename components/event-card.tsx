@@ -9,16 +9,16 @@ interface EventCardProps {
         event_uuid: string;
         slug: string;
         title: string;
-        excerpt: string;
+        excerpt?: string;
         image?: string;
         date?: string;
         time?: string;
-        location: string;
+        location?: string;
         views?: number;
         category?: {
             name: string;
         };
-        status?: "upcoming" | "ongoing" | "completed";
+        status?: string;
         participants?: number;
     };
     index?: number;
@@ -139,13 +139,13 @@ export function EventCard({ event, index = 0, onCategoryClick }: EventCardProps)
                 </h3>
 
                 <p className="text-gray-600 text-sm mb-4 line-clamp-3 leading-relaxed">
-                    {event.excerpt}
+                    {event.excerpt ?? ""}
                 </p>
 
                 <div className="space-y-2 mb-4">
                     <div className="flex items-center text-sm text-gray-500">
                         <MapPin className="h-4 w-4 mr-2 text-[#004987]" />
-                        <span className="line-clamp-1">{event.location}</span>
+                        <span className="line-clamp-1">{event.location ?? ""}</span>
                     </div>
 
                     <div className="flex items-center justify-between text-sm text-gray-500">
