@@ -116,7 +116,7 @@ export function FilterBar({
                         <span className="text-sm text-gray-600">Active filters:</span>
                         {searchQuery && (
                             <span className="px-3 py-1 bg-[#004987]/10 text-[#004987] rounded-full text-sm flex items-center gap-1">
-                                Search: "{searchQuery}"
+                                Search: &quot;{searchQuery}&quot;
                             </span>
                         )}
                         {selectedCategory !== "all" && (
