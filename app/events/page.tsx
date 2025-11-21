@@ -1,47 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import {
-  Calendar,
-  MapPin,
-  Clock,
-  ChevronRight,
-  Search,
-  Eye,
-} from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
-import short from "short-uuid";
 import {
   AnimatedSection,
   AnimatedHeading,
   AnimatedDivider,
 } from "@/components/ui/animated-section";
-
-// Import useEvent hook
 import { useEvent } from "@/hooks/useEvent";
-
-// Helper: format date as dd/MM/yyyy
-function formatDate(dateString?: string) {
-  if (!dateString) return "";
-  const date = new Date(dateString);
-  return date.toLocaleDateString("vi-VN");
-}
-
-// Helper: format time as HH:mm
-function formatTime(timeString?: string) {
-  if (!timeString || timeString === "00:00") return "";
-  return timeString.slice(0, 5);
-}
+import { FilterBar } from "@/components/filter-bar";
+import { EventCard } from "@/components/event-card";
+import { SkeletonCard } from "@/components/skeleton-card";
 
 export default function EventsPage() {
   const router = useRouter();
-  
-  // Use the centralized useEvent hook
+
   const {
     events: eventData,
     categories,
@@ -57,16 +35,15 @@ export default function EventsPage() {
     threshold: 0.1,
   });
 
-  // Convert categories to include "all" option
+  const [sortBy, setSortBy] = useState("latest");
+
   const categoryOptions = [
-    "all", 
+    "all",
     ...categories.map(cat => cat.name)
   ];
 
-  // Handle category click
   const handleCategoryClick = (category: string) => {
     if (category === "all") {
-      // Stay on current page but reset filter
       setSelectedCategory(category);
     } else {
       category = category.toLowerCase();
@@ -74,7 +51,17 @@ export default function EventsPage() {
     }
   };
 
-  // Animation variants
+  const sortedEvents = [...eventData].sort((a, b) => {
+    if (sortBy === "latest") {
+      return new Date(b.date || "").getTime() - new Date(a.date || "").getTime();
+    } else if (sortBy === "popular") {
+      return (b.views || 0) - (a.views || 0);
+    } else if (sortBy === "alphabetical") {
+      return a.title.localeCompare(b.title);
+    }
+    return 0;
+  });
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -85,22 +72,9 @@ export default function EventsPage() {
     },
   };
 
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.5,
-      },
-    },
-  };
-
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
       <section className="relative py-20 md:py-32 bg-gradient-to-b from-[#004987] to-[#0070b8] text-white overflow-hidden">
-        {/* Animated background elements */}
         <motion.div
           className="absolute inset-0"
           initial={{ opacity: 0 }}
@@ -148,61 +122,30 @@ export default function EventsPage() {
         </div>
       </section>
 
-      {/* Events Section */}
       <section className="py-16 md:py-24 bg-gray-50" ref={ref}>
         <div className="container px-4 md:px-6">
-          {/* Filters */}
-          <motion.div className="mb-12">
-            <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-8">
-              {/* Search */}
-              <motion.div
-                className="relative w-full md:w-96"
-                initial={{ opacity: 0, x: -20 }}
-                animate={inView ? { opacity: 1, x: 0 } : {}}
-                transition={{ duration: 0.8, delay: 0.2 }}
-              >
-                <input
-                  type="text"
-                  placeholder="Search events..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-4 py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#004987] focus:border-transparent transition-all duration-300"
-                />
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-              </motion.div>
+          <FilterBar
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
+            categories={categoryOptions}
+            sortBy={sortBy}
+            setSortBy={setSortBy}
+            sortOptions={[
+              { value: "latest", label: "Latest" },
+              { value: "popular", label: "Most Popular" },
+              { value: "alphabetical", label: "A-Z" },
+            ]}
+            onCategoryClick={handleCategoryClick}
+          />
 
-              {/* Category Filter */}
-              <motion.div
-                className="flex flex-wrap gap-2"
-                initial={{ opacity: 0, x: 20 }}
-                animate={inView ? { opacity: 1, x: 0 } : {}}
-                transition={{ duration: 0.8, delay: 0.3 }}
-              >
-                {categoryOptions.map((category) => (
-                  <Button
-                    key={category}
-                    variant={
-                      selectedCategory === category ? "default" : "outline"
-                    }
-                    onClick={() => handleCategoryClick(category)}
-                    className="transition-all duration-300 hover:scale-105"
-                  >
-                    {category === "all" ? "All categories" : category}
-                  </Button>
-                ))}
-              </motion.div>
-            </div>
-          </motion.div>
-
-          {/* Loading State */}
           {isLoading && (
-            <div className="text-center py-12">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-[#004987] border-t-transparent"></div>
-              <p className="mt-4 text-gray-600">Loading events...</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <SkeletonCard variant="event" count={6} />
             </div>
           )}
 
-          {/* Events Grid */}
           {!isLoading && (
             <motion.div
               variants={containerVariants}
@@ -210,99 +153,61 @@ export default function EventsPage() {
               animate={inView ? "visible" : "hidden"}
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
             >
-              {eventData.map((event) => (
-                <motion.div
+              {sortedEvents.map((event, index) => (
+                <EventCard
                   key={event.event_uuid}
-                  variants={itemVariants}
-                  whileHover={{ y: -5 }}
-                  className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
-                >
-                  <div className="relative h-48 overflow-hidden group">
-                    <Image
-                      src={
-                        !event.image
-                          ? "/placeholder.svg"
-                          : event.image.startsWith("http") ||
-                            event.image.startsWith("/")
-                          ? event.image
-                          : "/" + event.image
-                      }
-                      alt={event.title}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    <div className="absolute top-4 left-4">
-                      <Link href={`/events/categories/${encodeURIComponent(event.category?.name || 'uncategorized')}`}>
-                        <span className="px-3 py-1 text-xs font-medium bg-[#004987] text-white rounded-full hover:bg-[#003b6d] transition-colors duration-300 cursor-pointer">
-                          {event.category?.name || 'Uncategorized'}
-                        </span>
-                      </Link>
-                    </div>
-                  </div>
-                  <div className="p-6">
-                    {/* Date and Time Row */}
-                    <div className="flex items-center text-sm text-gray-500 mb-2 gap-4">
-                      <div className="flex items-center">
-                        <Calendar className="h-4 w-4 mr-1" />
-                        <span>{formatDate(event.date)}</span>
-                      </div>
-                      {formatTime(event.time) && (
-                        <>
-                          <span className="mx-1 text-gray-400">|</span>
-                          <div className="flex items-center">
-                            <Clock className="w-4 h-4 mr-1" />
-                            <span>{formatTime(event.time)}</span>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                    <h3 className="text-lg md:text-xl font-semibold mb-2 text-[#004987] line-clamp-2">
-                      {event.title}
-                    </h3>
-                    <p className="text-gray-600 text-sm md:text-base mb-4 line-clamp-3">
-                      {event.excerpt}
-                    </p>
-                    <div className="flex items-center text-sm text-gray-500 mb-2">
-                      <MapPin className="h-4 w-4 mr-1" />
-                      <span>{event.location}</span>
-                    </div>
-                    <div className="flex items-center text-sm text-gray-500 mb-4">
-                      <Eye className="h-4 w-4 mr-1" />
-                      <span>{event.views || 0} views</span>
-                    </div>
-                    <Link
-                      href={`/events/${event.slug}`}
-                    >
-                      <Button
-                        variant="outline"
-                        className="w-full text-[#004987] border-[#004987] hover:bg-[#004987] hover:text-white transition-colors duration-300"
-                      >
-                        View details
-                      </Button>
-                    </Link>
-                  </div>
-                </motion.div>
+                  event={event}
+                  index={index}
+                  onCategoryClick={handleCategoryClick}
+                />
               ))}
             </motion.div>
           )}
 
-          {/* No Results Message */}
           {!isLoading && eventData.length === 0 && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-center py-12"
+              className="text-center py-16"
             >
-              <p className="text-gray-600 text-lg">
-                No events match your search criteria.
-              </p>
+              <div className="max-w-md mx-auto">
+                <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <svg
+                    className="w-12 h-12 text-gray-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                  No events found
+                </h3>
+                <p className="text-gray-500 mb-6">
+                  Try adjusting your search or filter criteria
+                </p>
+                <Button
+                  onClick={() => {
+                    setSearchQuery("");
+                    setSelectedCategory("all");
+                  }}
+                  variant="outline"
+                  className="text-[#004987] border-[#004987] hover:bg-[#004987] hover:text-white"
+                >
+                  Clear filters
+                </Button>
+              </div>
             </motion.div>
           )}
         </div>
       </section>
 
-      {/* Call to Action */}
       <section className="py-16 md:py-24 bg-gradient-to-r from-[#004987] to-[#0070b8] text-white">
         <div className="container px-4 md:px-6">
           <AnimatedSection className="max-w-3xl mx-auto text-center">

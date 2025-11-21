@@ -1,16 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Image from "next/image";
+import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, ChevronRight, Search, Tag, Share2, BookmarkPlus, ArrowRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { AnimatedDivider } from "@/components/ui/animated-section";
 import { useBlog } from "@/hooks/useBlog";
-import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { FilterBar } from "@/components/filter-bar";
+import { BlogCard } from "@/components/blog-card";
+import { SkeletonCard } from "@/components/skeleton-card";
 
 export default function BlogPage() {
   const router = useRouter();
@@ -18,13 +19,8 @@ export default function BlogPage() {
     blogs,
     categories,
     loading,
-    categoriesLoading,
-    currentPage,
-    totalPages,
-    currentBlogs,
     selectedCategory,
     searchQuery,
-    setCurrentPage,
     setSelectedCategory,
     setSearchQuery,
   } = useBlog();
@@ -34,7 +30,42 @@ export default function BlogPage() {
     threshold: 0.1,
   });
 
-  // Animation variants
+  const [sortBy, setSortBy] = useState("latest");
+  const [currentPage, setCurrentPage] = useState(1);
+  const blogsPerPage = 9;
+
+  const categoryOptions = ["all", ...categories.map((cat) => cat.name)];
+
+  const handleCategoryClick = (category: string) => {
+    setSelectedCategory(category);
+    setCurrentPage(1);
+
+    if (category !== "all") {
+      const categoryLower = category.toLowerCase();
+      router.push(`/blogs/categories/${categoryLower}`);
+    }
+  };
+
+  const sortedBlogs = [...blogs].sort((a, b) => {
+    if (sortBy === "latest") {
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    } else if (sortBy === "popular") {
+      return b.views - a.views;
+    } else if (sortBy === "alphabetical") {
+      return a.title.localeCompare(b.title);
+    }
+    return 0;
+  });
+
+  const totalPages = Math.ceil(sortedBlogs.length / blogsPerPage);
+  const startIndex = (currentPage - 1) * blogsPerPage;
+  const currentBlogs = sortedBlogs.slice(startIndex, startIndex + blogsPerPage);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -45,41 +76,37 @@ export default function BlogPage() {
     },
   };
 
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.5,
-      },
-    },
-  };
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisible = 5;
 
-  // Optimize category click handling to navigate to category page
-  const handleCategoryClick = (category: string) => {
-    if (selectedCategory === category) return; // Avoid redundant updates
-
-    setSelectedCategory(category); // Update the selected category state
-
-    if (category !== "all") {
-      category = category.toLowerCase();
-      router.push(`/blogs/categories/${category}`); // Navigate to category page
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
     } else {
-      toast("Showing all blogs"); // Notify user
-      router.push(`/categories/all`); // Navigate to all categories page
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 4; i++) pages.push(i);
+        pages.push("...");
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1);
+        pages.push("...");
+        for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i);
+      } else {
+        pages.push(1);
+        pages.push("...");
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i);
+        pages.push("...");
+        pages.push(totalPages);
+      }
     }
-  };
 
-  // Ensure selected category button has distinct styles
-  const categoryButtonClass = (category: string) =>
-    selectedCategory === category
-      ? "bg-[#004987] text-white hover:bg-[#003b6d]"
-      : "bg-white text-[#004987] hover:bg-gray-100";
+    return pages;
+  };
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
       <section className="relative py-20 md:py-32 bg-gradient-to-b from-[#004987] to-[#0070b8] text-white overflow-hidden">
         <motion.div
           className="absolute inset-0"
@@ -133,146 +160,132 @@ export default function BlogPage() {
         </div>
       </section>
 
-      {/* Blogs Section */}
       <section className="py-16 md:py-24 bg-gray-50" ref={ref}>
         <div className="container px-4 md:px-6">
-          {/* Filters */}
-          <div className="mb-12">
-            <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-8">
-              {/* Search */}
-              <div className="relative w-full md:w-96">
-                <input
-                  type="text"
-                  placeholder="Search blogs..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-4 py-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#004987] focus:border-transparent"
-                />
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-              </div>
+          <FilterBar
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
+            categories={categoryOptions}
+            sortBy={sortBy}
+            setSortBy={setSortBy}
+            sortOptions={[
+              { value: "latest", label: "Latest" },
+              { value: "popular", label: "Most Popular" },
+              { value: "alphabetical", label: "A-Z" },
+            ]}
+            onCategoryClick={handleCategoryClick}
+          />
 
-              {/* Category Filter */}
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  variant={selectedCategory === "all" ? "default" : "outline"}
-                  onClick={() => handleCategoryClick("all")}
-                  className={`transition-all duration-300 hover:scale-105 ${categoryButtonClass("all")}`}
-                >
-                  All Posts
-                </Button>
-                {categories.map((category) => (
-                  <Button
-                    key={category.id}
-                    variant={
-                      selectedCategory === category.name ? "default" : "outline"
-                    }
-                    onClick={() => handleCategoryClick(category.name)}
-                    className={`transition-all duration-300 hover:scale-105 ${categoryButtonClass(category.name)}`}
-                  >
-                    {category.name}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Loading State */}
           {loading && (
-            <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#004987] mx-auto"></div>
-              <p className="mt-4 text-gray-600">Loading blogs...</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <SkeletonCard variant="blog" count={6} />
             </div>
           )}
 
-          {/* Blogs Grid */}
           {!loading && (
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate={inView ? "visible" : "hidden"}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-            >
-              {currentBlogs.map((blog) => (
+            <>
+              <motion.div
+                variants={containerVariants}
+                initial="hidden"
+                animate={inView ? "visible" : "hidden"}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+              >
+                {currentBlogs.map((blog, index) => (
+                  <BlogCard key={blog.blog_uuid} blog={blog} index={index} />
+                ))}
+              </motion.div>
+
+              {totalPages > 1 && (
                 <motion.div
-                  key={blog.blog_uuid}
-                  variants={itemVariants}
-                  className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="mt-12 flex justify-center items-center gap-2"
                 >
-                  <div className="relative h-48 overflow-hidden group">
-                    <Image
-                      src={blog.thumbnail_url || "/placeholder.jpg"}
-                      alt={blog.title}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-                  </div>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
 
-                  <div className="p-6">
-                    <h3 className="text-xl font-semibold text-[#004987] mb-3 line-clamp-2">
-                      {blog.title}
-                    </h3>
-
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                      {blog.short_description}
-                    </p>
-
-                    <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center">
-                          <Calendar className="w-4 h-4 mr-1" />
-                          <span>{new Date(blog.created_at).toLocaleDateString()}</span>
-                        </div>
-                        <div className="flex items-center">
-                          <Clock className="w-4 h-4 mr-1" />
-                          <span>{new Date(blog.created_at).toLocaleTimeString()}</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span>{blog.views} views</span>
-                      </div>
+                  {getPageNumbers().map((page, index) => (
+                    <div key={index}>
+                      {page === "..." ? (
+                        <span className="px-3 py-2 text-gray-500">...</span>
+                      ) : (
+                        <Button
+                          variant={currentPage === page ? "default" : "outline"}
+                          onClick={() => handlePageChange(page as number)}
+                          className={`min-w-[40px] ${currentPage === page
+                              ? "bg-[#004987] text-white hover:bg-[#003b6d]"
+                              : "hover:bg-gray-100"
+                            }`}
+                        >
+                          {page}
+                        </Button>
+                      )}
                     </div>
+                  ))}
 
-                    {blog.tags && blog.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {blog.tags.map((tag) => (
-                          <span
-                            key={tag.id}
-                            className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full"
-                          >
-                            {tag.name}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-
-                    <div className="flex justify-between items-center">
-                      <Link href={`/blogs/${blog.slug}`}>
-                        <Button
-                          variant="outline"
-                          className="text-[#004987] border-[#004987] hover:bg-[#004987] hover:text-white transition-colors duration-300"
-                        >
-                          Read more
-                          <ChevronRight className="ml-2 h-4 w-4" />
-                        </Button>
-                      </Link>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          className="text-[#004987] border-[#004987] hover:bg-gray-100 transition-all duration-300"
-                        >
-                          <Share2 className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          className="text-[#004987] border-[#004987] hover:bg-gray-100 transition-all duration-300"
-                        >
-                          <BookmarkPlus className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
                 </motion.div>
-              ))}
+              )}
+            </>
+          )}
+
+          {!loading && blogs.length === 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center py-16"
+            >
+              <div className="max-w-md mx-auto">
+                <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <svg
+                    className="w-12 h-12 text-gray-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                  No blogs found
+                </h3>
+                <p className="text-gray-500 mb-6">
+                  Try adjusting your search or filter criteria
+                </p>
+                <Button
+                  onClick={() => {
+                    setSearchQuery("");
+                    setSelectedCategory("all");
+                  }}
+                  variant="outline"
+                  className="text-[#004987] border-[#004987] hover:bg-[#004987] hover:text-white"
+                >
+                  Clear filters
+                </Button>
+              </div>
             </motion.div>
           )}
         </div>
