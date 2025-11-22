@@ -266,8 +266,8 @@ END:VCALENDAR`;
               <div className="flex items-center gap-2 mb-4">
                 <span
                   className={`px-3 py-1 text-sm font-medium rounded-full ${isUpcoming
-                      ? "bg-green-500 text-white"
-                      : "bg-gray-400 text-white"
+                    ? "bg-green-500 text-white"
+                    : "bg-gray-400 text-white"
                     }`}
                 >
                   {isUpcoming ? "Upcoming" : "Past Event"}
@@ -348,8 +348,8 @@ END:VCALENDAR`;
                   variant="outline"
                   onClick={toggleBookmark}
                   className={`transition-all duration-300 hover:scale-105 ${isBookmarked
-                      ? "bg-white text-[#004987]"
-                      : "bg-white text-[#004987] hover:bg-gray-100"
+                    ? "bg-white text-[#004987]"
+                    : "bg-white text-[#004987] hover:bg-gray-100"
                     }`}
                 >
                   {isBookmarked ? (
@@ -410,17 +410,17 @@ END:VCALENDAR`;
                           className="bg-white rounded-lg p-6 shadow-md hover:shadow-xl transition-shadow duration-300 border border-gray-100"
                         >
                           <div className="flex items-start gap-4">
-                            <div className="flex-shrink-0">
+                            <div className="flex-shrink-0 w-20 h-20">
                               {speaker.avatar_img ? (
                                 <Image
                                   src={speaker.avatar_img}
                                   alt={speaker.name}
                                   width={80}
                                   height={80}
-                                  className="rounded-full object-cover border-4 border-[#004987]/10"
+                                  className="rounded-full object-cover border-4 border-[#004987]/10 w-full h-full"
                                 />
                               ) : (
-                                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#004987] to-[#0070b8] flex items-center justify-center text-white text-2xl font-bold">
+                                <div className="w-full h-full rounded-full bg-gradient-to-br from-[#004987] to-[#0070b8] flex items-center justify-center text-white text-2xl font-bold">
                                   {speaker.name.charAt(0).toUpperCase()}
                                 </div>
                               )}
