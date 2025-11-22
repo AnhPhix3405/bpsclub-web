@@ -268,8 +268,8 @@ export default function BlogDetailPage() {
                     variant="outline"
                     onClick={toggleBookmark}
                     className={`transition-all duration-300 hover:scale-105 ${isBookmarked
-                        ? "bg-white text-[#004987]"
-                        : "bg-white text-[#004987] hover:bg-gray-100"
+                      ? "bg-white text-[#004987]"
+                      : "bg-white text-[#004987] hover:bg-gray-100"
                       }`}
                   >
                     {isBookmarked ? (
@@ -344,10 +344,6 @@ export default function BlogDetailPage() {
                     </div>
                   </div>
 
-                  {blog.content && (
-                    <TableOfContents content={blog.content} />
-                  )}
-
                   {blog.tags && blog.tags.length > 0 && (
                     <div className="bg-gray-50 rounded-lg p-6 shadow-md">
                       <h3 className="text-lg font-semibold text-[#004987] mb-4">
@@ -364,6 +360,13 @@ export default function BlogDetailPage() {
                         ))}
                       </div>
                     </div>
+                  )}
+
+                  {blog.content && (
+                    <TableOfContents
+                      content={blog.content}
+                      className="sticky top-20" // Ensure the table of contents stays visible without overlapping
+                    />
                   )}
                 </div>
               </div>
